@@ -1,6 +1,8 @@
 # harbourmaster
 UI for Docker Engine API
 
+Status: **pre-alpha**
+
 # Development
 
 ```bash
