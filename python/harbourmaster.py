@@ -14,7 +14,6 @@ session = requests_unixsocket.Session()
 
 @app.route('/')
 def index():
-    print('##### HIER')
     return app.send_static_file('index.html')
 
 docker_engine_parser = api.parser()
