@@ -7,6 +7,9 @@ UI for Docker Engine API
 $ pipenv shell
 ```
 
+- Sample Docker URL via Flask app: ``http://localhost:9000/api/docker-engine/?url=/info``
+- [API documentation](http://localhost:9000/api/doc/)
+
 # Server
 
 ```bash
