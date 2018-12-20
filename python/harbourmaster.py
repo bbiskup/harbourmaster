@@ -31,7 +31,7 @@ class DockerEngine(Resource):
         args = docker_engine_parser.parse_args()
         url = args['url']
         print('URL: %s', url)
-        r = session.get('http+unix://%%2Fvar%%2Frun%%2Fdocker.sock%s' % url) 
+        r = session.get('http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)) 
         return r.json()
 
 
