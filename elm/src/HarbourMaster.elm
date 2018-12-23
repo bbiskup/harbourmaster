@@ -2,83 +2,60 @@ module HarbourMaster exposing (main)
 
 import Browser
 import Html exposing (..)
-import Http
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (..)
+import Pages.Info
+import Types exposing (AppState)
+
+
+type Page
+    = InfoPage Pages.Info.Model
 
 
 type alias Model =
-    { dummy : String
-    , numContainersRunning : Maybe Int
-    , serverErrMsg : String
+    { appState : AppState
+    , currPage : Page
     }
 
 
 type Msg
-    = GetDockerInfo
-    | GotDockerInfo (Result Http.Error DockerInfo)
+    = NavInfo
+    | Info Pages.Info.Msg
 
 
+initialModel : Model
 initialModel =
-    { dummy = "Dummy"
-    , numContainersRunning = Nothing
-    , serverErrMsg = ""
+    { appState = { dummyGlobalState = "dummy_global_state" }
+    , currPage = InfoPage Pages.Info.init
     }
-
-
-type alias DockerInfo =
-    { id : String
-    , numContainersRunning : Int
-    , numContainersPaused : Int
-    , numContainersStopped : Int
-    , numImages : Int
-    , driver : String
-    }
-
-
-dockerInfoDecoder : Decode.Decoder DockerInfo
-dockerInfoDecoder =
-    Decode.succeed DockerInfo
-        |> required "ID" Decode.string
-        |> required "ContainersRunning" Decode.int
-        |> required "ContainersPaused" Decode.int
-        |> required "ContainersStopped" Decode.int
-        |> required "Images" Decode.int
-        |> required "Driver" Decode.string
-
-
-getDockerInfo : Cmd Msg
-getDockerInfo =
-    Http.get
-        { url = "/api/docker-engine/?url=/info"
-        , expect = Http.expectJson GotDockerInfo dockerInfoDecoder
-        }
 
 
 initialCmd : Cmd Msg
 initialCmd =
-    getDockerInfo
+    Pages.Info.initialCmd |> Cmd.map Info
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ text "App"
-        , text <| "# of running containers: " ++ Maybe.withDefault "-" (Maybe.map String.fromInt model.numContainersRunning)
-        ]
+    case model.currPage of
+        InfoPage pageModel ->
+            Pages.Info.page pageModel |> Html.map Info
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ appState } as model) =
     case msg of
-        GotDockerInfo (Ok dockerInfo) ->
-            ( { model | numContainersRunning = Just dockerInfo.numContainersRunning }, Cmd.none )
+        -- navigate to info page
+        NavInfo ->
+            ( { model | currPage = InfoPage Pages.Info.init }, Cmd.none )
 
-        GotDockerInfo (Err error) ->
-            ( { model | serverErrMsg = "Server error" }, Cmd.none )
+        Info pageMsg ->
+            let
+                (InfoPage pageModel) =
+                    model.currPage
 
-        GetDockerInfo ->
-            ( model, getDockerInfo )
+                ( infoModel, infoCmd ) =
+                    Pages.Info.update pageMsg pageModel
+            in
+            ( { model | currPage = InfoPage infoModel }, Cmd.map Info infoCmd )
 
 
 init : () -> ( Model, Cmd Msg )
