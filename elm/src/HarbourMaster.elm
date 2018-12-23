@@ -9,7 +9,7 @@ import Json.Decode.Pipeline exposing (..)
 
 type alias Model =
     { dummy : String
-    , numContainersRunning : Int
+    , numContainersRunning : Maybe Int
     , serverErrMsg : String
     }
 
@@ -21,7 +21,7 @@ type Msg
 
 initialModel =
     { dummy = "Dummy"
-    , numContainersRunning = 0
+    , numContainersRunning = Nothing
     , serverErrMsg = ""
     }
 
@@ -64,7 +64,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ text "App"
-        , text <| "# of running containers: " ++ String.fromInt model.numContainersRunning
+        , text <| "# of running containers: " ++ Maybe.withDefault "-" (Maybe.map String.fromInt model.numContainersRunning)
         ]
 
 
@@ -72,7 +72,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GotDockerInfo (Ok dockerInfo) ->
-            ( { model | numContainersRunning = dockerInfo.numContainersRunning }, Cmd.none )
+            ( { model | numContainersRunning = Just dockerInfo.numContainersRunning }, Cmd.none )
 
         GotDockerInfo (Err error) ->
             ( { model | serverErrMsg = "Server error" }, Cmd.none )
