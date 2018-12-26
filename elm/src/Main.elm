@@ -108,11 +108,7 @@ view model =
             ]
         , Grid.row [ Row.attrs [ style "margin-top" "55px" ] ]
             [ Grid.col [] [] ]
-        , Grid.row []
-            [ Grid.col []
-                [ currentPage model
-                ]
-            ]
+        , currentPage model
         ]
     }
 

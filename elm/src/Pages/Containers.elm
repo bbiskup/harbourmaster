@@ -1,6 +1,12 @@
 module Pages.Containers exposing (Model, Msg, init, subscriptions, update, view)
 
+import Bootstrap.Button as Button
+import Bootstrap.Card as Card
+import Bootstrap.Card.Block as Block
+import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Col as Col
 import Html exposing (..)
+import Html.Attributes exposing (href)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -72,28 +78,34 @@ update msg model =
             ( model, getDockerContainers )
 
 
+containerNameOrId : DockerContainer -> String
+containerNameOrId container =
+    Maybe.withDefault container.id <| List.head container.names
+
+
+viewContainer : DockerContainer -> Card.Config msg
+viewContainer container =
+    Card.config [ Card.outlinePrimary ]
+        |> Card.headerH4 [] [ text <| containerNameOrId container ]
+        |> Card.block []
+            [ Block.text [] [ text container.image ]
+            ]
+
+
 view : Model -> Html Msg
 view model =
     let
+        content : Html Msg
         content =
             case model.dockerContainers of
                 Just (DockerContainers dockerContainers) ->
-                    let
-                        renderContainer : DockerContainer -> Html Msg
-                        renderContainer dockerContainer =
-                            li [] [ text <| dockerContainer.id ++ " (" ++ dockerContainer.image ++ ")" ]
-                    in
-                    ul []
-                        (List.map renderContainer dockerContainers)
+                    Card.columns <| List.map viewContainer dockerContainers
 
                 Nothing ->
-                    p [] [ text "No containers" ]
+                    text "No containers"
     in
-    div []
-        [ h1 [] [ text "Containers" ]
-        , content
-        , p [] [ text model.serverError ]
-        ]
+    Grid.row []
+        [ Grid.col [ Col.xs11 ] [ content ] ]
 
 
 subscriptions : Model -> Sub Msg
