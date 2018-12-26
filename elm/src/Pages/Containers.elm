@@ -86,7 +86,7 @@ containerNameOrId container =
 viewContainer : DockerContainer -> Card.Config msg
 viewContainer container =
     Card.config [ Card.outlinePrimary ]
-        |> Card.headerH4 [] [ text <| containerNameOrId container ]
+        |> Card.headerH5 [] [ text <| containerNameOrId container ]
         |> Card.block []
             [ Block.text [] [ text container.image ]
             ]
