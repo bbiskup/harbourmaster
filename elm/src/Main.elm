@@ -91,8 +91,8 @@ sideBar =
     div [ class "harbourmaster-sidebar", h100 ]
         [ h6 [] [ text appTitle ]
         , ul [ class "harbourmaster-nav-link-list" ]
-            [ li [] [ a [ href "/app/info" ] [ text "Info" ] ]
-            , li [] [ a [ href "/app/containers" ] [ text "Containers" ] ]
+            [ li [] [ a [ href Routes.infoPath ] [ text "Info" ] ]
+            , li [] [ a [ href Routes.containersPath ] [ text "Containers" ] ]
             ]
         ]
 
