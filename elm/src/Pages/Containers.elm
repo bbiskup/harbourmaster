@@ -85,18 +85,6 @@ containerNameOrId container =
     Maybe.withDefault container.id <| List.head container.names
 
 
-
-{-
-   viewContainer : DockerContainer -> Card.Config msg
-   viewContainer container =
-       Card.config [ Card.outlinePrimary ]
-           |> Card.headerH5 [] [ text <| containerNameOrId container ]
-           |> Card.block []
-               [ Block.text [] [ text container.image ]
-               ]
--}
-
-
 viewContainers : List DockerContainer -> Html Msg
 viewContainers containers =
     Table.table
