@@ -74,24 +74,26 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    case model.dockerContainers of
-        Just (DockerContainers dockerContainers) ->
-            let
-                renderContainer : DockerContainer -> Html Msg
-                renderContainer dockerContainer =
-                    li [] [ text <| dockerContainer.id ++ " (" ++ dockerContainer.image ++ ")" ]
-            in
-            div []
-                [ h1 [] [ text "Containers" ]
-                , ul []
-                    (List.map renderContainer dockerContainers)
-                ]
+    let
+        content =
+            case model.dockerContainers of
+                Just (DockerContainers dockerContainers) ->
+                    let
+                        renderContainer : DockerContainer -> Html Msg
+                        renderContainer dockerContainer =
+                            li [] [ text <| dockerContainer.id ++ " (" ++ dockerContainer.image ++ ")" ]
+                    in
+                    ul []
+                        (List.map renderContainer dockerContainers)
 
-        Nothing ->
-            div []
-                [ p [] [ text "No containers" ]
-                , p [] [ text model.serverError ]
-                ]
+                Nothing ->
+                    p [] [ text "No containers" ]
+    in
+    div []
+        [ h1 [] [ text "Containers" ]
+        , content
+        , p [] [ text model.serverError ]
+        ]
 
 
 subscriptions : Model -> Sub Msg
