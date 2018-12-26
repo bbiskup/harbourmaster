@@ -86,23 +86,6 @@ loadCurrentPage ( model, cmd ) =
     ( { model | page = page }, Cmd.batch [ cmd, newCmd ] )
 
 
-
-{-
-   -- Bootstrap navbar at top
-   navBar : Navbar.Config Msg
-   navBar =
-       Navbar.config NavbarMsg
-           |> Navbar.fixTop
-           |> Navbar.brand
-               [ href "#" ]
-               [ text appTitle ]
-           |> Navbar.items
-               [ Navbar.itemLink [ href Routes.infoPath, class "nav-tabs" ] [ text "Info" ]
-               , Navbar.itemLink [ href Routes.containersPath ] [ text "Containers" ]
-               ]
--}
-
-
 sideBar : Html Msg
 sideBar =
     div [ class "harbourmaster-sidebar", h100 ]
