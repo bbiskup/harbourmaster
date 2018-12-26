@@ -5,7 +5,8 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (href, title)
+import Html.Attributes exposing (href, title, type_)
+import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -53,30 +54,41 @@ getDockerImages =
 type alias Model =
     { dockerImages : Maybe DockerImages
     , serverError : String
+    , filterUnnamedImages : Bool
     }
 
 
 type Msg
     = GetDockerImages
     | GotDockerImages (Result Http.Error DockerImages)
+    | ToggleFilterUnnamedImages
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { dockerImages = Nothing, serverError = "" }, getDockerImages )
+    ( { dockerImages = Nothing, serverError = "", filterUnnamedImages = True }, getDockerImages )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GotDockerImages (Ok dockerImages) ->
-            ( { model | dockerImages = Just dockerImages }, Cmd.none )
+            ( { model | dockerImages = Just dockerImages }
+            , Cmd.none
+            )
 
         GotDockerImages (Err error) ->
-            ( { model | serverError = "Server error" }, Cmd.none )
+            ( { model | serverError = "Server error" }
+            , Cmd.none
+            )
 
         GetDockerImages ->
             ( model, getDockerImages )
+
+        ToggleFilterUnnamedImages ->
+            ( { model | filterUnnamedImages = not model.filterUnnamedImages }
+            , getDockerImages
+            )
 
 
 imageNameOrId : DockerImage -> String
@@ -84,11 +96,18 @@ imageNameOrId image =
     Maybe.withDefault image.id <| Dict.get "name" image.labels
 
 
-viewImages : List DockerImage -> Html Msg
-viewImages images =
+viewImages : List DockerImage -> Bool -> Html Msg
+viewImages images filterUnnamedImages =
     let
+        filteredImages =
+            if filterUnnamedImages then
+                List.filter (\image -> not <| String.startsWith "sha256:" <| imageNameOrId image) images
+
+            else
+                images
+
         sortedImages =
-            List.sortBy imageNameOrId images
+            List.sortBy imageNameOrId filteredImages
     in
     Table.table
         { options = [ Table.striped, Table.hover ]
@@ -132,7 +151,7 @@ view model =
         content =
             case model.dockerImages of
                 Just (DockerImages dockerImages) ->
-                    viewImages dockerImages
+                    viewImages dockerImages model.filterUnnamedImages
 
                 Nothing ->
                     text "No images"
@@ -140,6 +159,10 @@ view model =
     Grid.row []
         [ Grid.col [ Col.xs11 ]
             [ h1 [] [ text "Images" ]
+            , label []
+                [ input [ type_ "checkbox", onClick ToggleFilterUnnamedImages ] []
+                , text "Filter unnamed images"
+                ]
             , content
             ]
         ]
