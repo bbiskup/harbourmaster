@@ -11,6 +11,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, href)
 import Json.Encode as Encode
 import Pages.Containers as Containers
+import Pages.Images as Images
 import Pages.Info as Info
 import Routes exposing (Route)
 import Types exposing (AppState)
@@ -33,6 +34,7 @@ type alias Model =
 type Page
     = PageInfo Info.Model
     | PageContainers Containers.Model
+    | PageImages Images.Model
     | PageNone
 
 
@@ -41,6 +43,7 @@ type Msg
     | OnUrlRequest UrlRequest
     | InfoMsg Info.Msg
     | ContainersMsg Containers.Msg
+    | ImagesMsg Images.Msg
     | NavbarMsg Navbar.State
 
 
@@ -80,6 +83,13 @@ loadCurrentPage ( model, cmd ) =
                     in
                     ( PageContainers pageModel, Cmd.map ContainersMsg pageCmd )
 
+                Routes.ImagesRoute ->
+                    let
+                        ( pageModel, pageCmd ) =
+                            Images.init
+                    in
+                    ( PageImages pageModel, Cmd.map ImagesMsg pageCmd )
+
                 Routes.NotFoundRoute ->
                     ( PageNone, Cmd.none )
     in
@@ -92,6 +102,7 @@ sideBar =
         [ h6 [] [ text appTitle ]
         , ul [ class "harbourmaster-nav-link-list" ]
             [ li [] [ a [ href Routes.infoPath ] [ text "Info" ] ]
+            , li [] [ a [ href Routes.imagesPath ] [ text "Images" ] ]
             , li [] [ a [ href Routes.containersPath ] [ text "Containers" ] ]
             ]
         ]
@@ -121,6 +132,10 @@ currentPage model =
         PageContainers pageModel ->
             Containers.view pageModel
                 |> Html.map ContainersMsg
+
+        PageImages pageModel ->
+            Images.view pageModel
+                |> Html.map ImagesMsg
 
         PageNone ->
             notFoundView
@@ -174,6 +189,18 @@ update msg model =
         ( ContainersMsg subMsg, _ ) ->
             ( model, Cmd.none )
 
+        ( ImagesMsg subMsg, PageImages pageModel ) ->
+            let
+                ( newPageModel, newCmd ) =
+                    Images.update subMsg pageModel
+            in
+            ( { model | page = PageImages newPageModel }
+            , Cmd.map ImagesMsg newCmd
+            )
+
+        ( ImagesMsg subMsg, _ ) ->
+            ( model, Cmd.none )
+
         ( NavbarMsg state, _ ) ->
             ( { model | navbarState = state }, Cmd.none )
 
@@ -186,6 +213,9 @@ subscriptions model =
 
         PageContainers pageModel ->
             Sub.map ContainersMsg (Containers.subscriptions pageModel)
+
+        PageImages pageModel ->
+            Sub.map ImagesMsg (Images.subscriptions pageModel)
 
         PageNone ->
             Sub.none

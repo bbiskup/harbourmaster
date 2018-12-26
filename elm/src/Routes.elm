@@ -1,4 +1,4 @@
-module Routes exposing (Route(..), containerPath, containersPath, infoPath, parseUrl)
+module Routes exposing (Route(..), containerPath, containersPath, imagesPath, infoPath, parseUrl)
 
 import Url exposing (Url)
 import Url.Parser exposing (..)
@@ -13,6 +13,7 @@ type Route
     = InfoRoute
     | ContainersRoute
       --    | ContainerRoute String
+    | ImagesRoute
     | NotFoundRoute
 
 
@@ -21,6 +22,7 @@ matchers =
     oneOf
         [ map InfoRoute (s appPrefix </> s "info")
         , map ContainersRoute (s appPrefix </> s "containers")
+        , map ImagesRoute (s appPrefix </> s "images")
         ]
 
 
@@ -48,6 +50,9 @@ pathFor route =
                 {- ContainerRoute id ->
                    "/containers/" ++ id
                 -}
+                ImagesRoute ->
+                    "/images"
+
                 NotFoundRoute ->
                     "/"
     in
@@ -67,3 +72,8 @@ containersPath =
 containerPath : String -> String
 containerPath id =
     pathFor ContainersRoute ++ "/" ++ id
+
+
+imagesPath : String
+imagesPath =
+    pathFor ImagesRoute

@@ -1,8 +1,5 @@
 module Pages.Containers exposing (Model, Msg, init, subscriptions, update, view)
 
-import Bootstrap.Button as Button
-import Bootstrap.Card as Card
-import Bootstrap.Card.Block as Block
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
