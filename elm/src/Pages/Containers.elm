@@ -105,7 +105,11 @@ view model =
                     text "No containers"
     in
     Grid.row []
-        [ Grid.col [ Col.xs11 ] [ content ] ]
+        [ Grid.col [ Col.xs11 ]
+            [ h1 [] [ text "Containers" ]
+            , content
+            ]
+        ]
 
 
 subscriptions : Model -> Sub Msg

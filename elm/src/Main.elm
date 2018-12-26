@@ -105,9 +105,12 @@ loadCurrentPage ( model, cmd ) =
 
 sideBar : Html Msg
 sideBar =
-    ul [ style "list-style-type" "none", style "padding-left" "0" ]
-        [ li [] [ a [ href "/app/info" ] [ text "Info" ] ]
-        , li [] [ a [ href "/app/containers" ] [ text "Containers" ] ]
+    div [ class "harbourmaster-sidebar", h100 ]
+        [ h6 [] [ text appTitle ]
+        , ul [ style "list-style-type" "none", style "padding-left" "0" ]
+            [ li [] [ a [ href "/app/info" ] [ text "Info" ] ]
+            , li [] [ a [ href "/app/containers" ] [ text "Containers" ] ]
+            ]
         ]
 
 
@@ -117,7 +120,7 @@ view model =
     , body =
         [ Grid.containerFluid [ h100 ]
             [ Grid.row [ Row.attrs [ h100 ] ]
-                [ Grid.col [ Col.xs2, Col.attrs [ class "harbourmaster-sidebar" ] ] [ sideBar ]
+                [ Grid.col [ Col.xs2, Col.attrs [] ] [ sideBar ]
                 , Grid.col [ Col.xs10 ] [ currentPage model ]
                 ]
             ]
