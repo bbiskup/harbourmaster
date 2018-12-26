@@ -1,4 +1,4 @@
-module Pages.Info exposing (Model, Msg(..), init, initialCmd, page, subscriptions, update)
+module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, update, view)
 
 {- Visualization of 'docker info' -}
 
@@ -58,7 +58,7 @@ init =
     ( { dockerInfo = Nothing
       , serverErrMsg = ""
       }
-    , Cmd.none
+    , initialCmd
     )
 
 
@@ -75,8 +75,8 @@ update msg model =
             ( model, getDockerInfo )
 
 
-page : Model -> Html Msg
-page model =
+view : Model -> Html Msg
+view model =
     let
         content =
             case model.dockerInfo of

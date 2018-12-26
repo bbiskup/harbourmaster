@@ -1,5 +1,6 @@
-module Pages.Containers exposing (Model, Msg, init, subscriptions, update)
+module Pages.Containers exposing (Model, Msg, init, subscriptions, update, view)
 
+import Html exposing (..)
 import Http
 
 
@@ -28,6 +29,11 @@ type alias DockerContainer =
 type Msg
     = GetDockerContainers
     | GotDockerContainers (Result Http.Error (List DockerContainer))
+
+
+view : Model -> Html Msg
+view model =
+    div [] [ text "Containers page" ]
 
 
 subscriptions : Model -> Sub Msg

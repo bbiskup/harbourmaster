@@ -81,10 +81,12 @@ currentPage : Model -> Html Msg
 currentPage model =
     case model.page of
         PageInfo pageModel ->
-            div [] [ text "Info page" ]
+            Info.view pageModel
+                |> Html.map InfoMsg
 
         PageContainers pageModel ->
-            div [] [ text "Containers page" ]
+            Containers.view pageModel
+                |> Html.map ContainersMsg
 
         PageNone ->
             notFoundView
