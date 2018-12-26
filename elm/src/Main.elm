@@ -15,9 +15,13 @@ import Types exposing (AppState)
 import Url exposing (Url)
 
 
+appTitle : String
+appTitle =
+    "HarbourMaster"
+
+
 type alias Model =
-    { appTitle : String
-    , navKey : Nav.Key
+    { navKey : Nav.Key
     , route : Route
     , page : Page
     , navbarState : Navbar.State
@@ -45,8 +49,7 @@ init () url navKey =
             Navbar.initialState NavbarMsg
 
         model =
-            { appTitle = "HarbourMaster"
-            , navKey = navKey
+            { navKey = navKey
             , route = Routes.parseUrl url
             , page = PageNone
             , navbarState = navbarState
@@ -87,7 +90,7 @@ navBar =
         |> Navbar.fixTop
         |> Navbar.brand
             [ href "#" ]
-            [ text "bootstrap-experiment" ]
+            [ text appTitle ]
         |> Navbar.items
             [ Navbar.itemLink [ href Routes.infoPath, class "nav-tabs" ] [ text "Info" ]
             , Navbar.itemLink [ href Routes.containersPath ] [ text "Containers" ]
@@ -96,11 +99,11 @@ navBar =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = model.appTitle
+    { title = appTitle
     , body =
         [ Grid.row []
             [ Grid.col []
-                [ Navbar.view model.navbarState navBar
+                [ Navbar.view model.navbarState <| navBar
                 ]
             ]
         , Grid.row [ Row.attrs [ style "margin-top" "55px" ] ]
