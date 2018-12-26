@@ -79,7 +79,7 @@ view model =
             let
                 renderContainer : DockerContainer -> Html Msg
                 renderContainer dockerContainer =
-                    li [] [ text <| dockerContainer.id ++ "(" ++ dockerContainer.image ++ ")" ]
+                    li [] [ text <| dockerContainer.id ++ " (" ++ dockerContainer.image ++ ")" ]
             in
             div []
                 [ h1 [] [ text "Containers" ]
