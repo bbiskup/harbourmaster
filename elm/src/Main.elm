@@ -8,7 +8,7 @@ import Bootstrap.Utilities.Size exposing (h100)
 import Browser exposing (UrlRequest)
 import Browser.Navigation as Nav
 import Html exposing (..)
-import Html.Attributes exposing (class, href, style)
+import Html.Attributes exposing (class, href)
 import Json.Encode as Encode
 import Pages.Containers as Containers
 import Pages.Info as Info
@@ -107,7 +107,7 @@ sideBar : Html Msg
 sideBar =
     div [ class "harbourmaster-sidebar", h100 ]
         [ h6 [] [ text appTitle ]
-        , ul [ style "list-style-type" "none", style "padding-left" "0" ]
+        , ul [ class "harbourmaster-nav-link-list" ]
             [ li [] [ a [ href "/app/info" ] [ text "Info" ] ]
             , li [] [ a [ href "/app/containers" ] [ text "Containers" ] ]
             ]
