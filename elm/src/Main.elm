@@ -1,9 +1,13 @@
 module Main exposing (main)
 
+import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Col as Col
+import Bootstrap.Grid.Row as Row
+import Bootstrap.Navbar as Navbar
 import Browser exposing (UrlRequest)
 import Browser.Navigation as Nav
 import Html exposing (..)
-import Html.Attributes exposing (href)
+import Html.Attributes exposing (class, href, style)
 import Pages.Containers as Containers
 import Pages.Info as Info
 import Routes exposing (Route)
@@ -16,6 +20,7 @@ type alias Model =
     , navKey : Nav.Key
     , route : Route
     , page : Page
+    , navbarState : Navbar.State
     }
 
 
@@ -30,19 +35,24 @@ type Msg
     | OnUrlRequest UrlRequest
     | InfoMsg Info.Msg
     | ContainersMsg Containers.Msg
+    | NavbarMsg Navbar.State
 
 
 init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init () url navKey =
     let
+        ( navbarState, navbarCmd ) =
+            Navbar.initialState NavbarMsg
+
         model =
             { appTitle = "HarbourMaster"
             , navKey = navKey
             , route = Routes.parseUrl url
             , page = PageNone
+            , navbarState = navbarState
             }
     in
-    ( model, Cmd.none )
+    ( model, navbarCmd )
         |> loadCurrentPage
 
 
@@ -71,18 +81,36 @@ loadCurrentPage ( model, cmd ) =
     ( { model | page = page }, Cmd.batch [ cmd, newCmd ] )
 
 
-navBar : Html Msg
+navBar : Navbar.Config Msg
 navBar =
-    ul []
-        [ li [] [ a [ href Routes.infoPath ] [ text "Info" ] ]
-        , li [] [ a [ href Routes.containersPath ] [ text "Containers" ] ]
-        ]
+    Navbar.config NavbarMsg
+        |> Navbar.fixTop
+        |> Navbar.brand
+            [ href "#" ]
+            [ text "bootstrap-experiment" ]
+        |> Navbar.items
+            [ Navbar.itemLink [ href Routes.infoPath, class "nav-tabs" ] [ text "Info" ]
+            , Navbar.itemLink [ href Routes.containersPath ] [ text "Containers" ]
+            ]
 
 
 view : Model -> Browser.Document Msg
 view model =
     { title = model.appTitle
-    , body = [ navBar, currentPage model ]
+    , body =
+        [ Grid.row []
+            [ Grid.col []
+                [ Navbar.view model.navbarState navBar
+                ]
+            ]
+        , Grid.row [ Row.attrs [ style "margin-top" "55px" ] ]
+            [ Grid.col [] [] ]
+        , Grid.row []
+            [ Grid.col []
+                [ currentPage model
+                ]
+            ]
+        ]
     }
 
 
@@ -144,6 +172,9 @@ update msg model =
 
         ( ContainersMsg subMsg, _ ) ->
             ( model, Cmd.none )
+
+        ( NavbarMsg state, _ ) ->
+            ( { model | navbarState = state }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
