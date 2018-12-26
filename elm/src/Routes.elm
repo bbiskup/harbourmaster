@@ -1,4 +1,4 @@
-module Routes exposing (Route(..), parseUrl)
+module Routes exposing (Route(..), containersPath, infoPath, parseUrl)
 
 import Url exposing (Url)
 import Url.Parser exposing (..)
@@ -52,3 +52,13 @@ pathFor route =
                     "/"
     in
     "/" ++ appPrefix ++ urlSuffix
+
+
+infoPath : String
+infoPath =
+    pathFor InfoRoute
+
+
+containersPath : String
+containersPath =
+    pathFor ContainersRoute

@@ -2,7 +2,7 @@ module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, upd
 
 {- Visualization of 'docker info' -}
 
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, h1, text)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -78,6 +78,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let
+        content : List (Html Msg)
         content =
             case model.dockerInfo of
                 Just info ->
@@ -88,7 +89,10 @@ view model =
                 Nothing ->
                     [ text "loading..." ]
     in
-    div [] content
+    div []
+        (h1 [] [ text "Images" ]
+            :: content
+        )
 
 
 subscriptions : Model -> Sub Msg

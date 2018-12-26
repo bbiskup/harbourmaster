@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser exposing (UrlRequest)
 import Browser.Navigation as Nav
 import Html exposing (..)
+import Html.Attributes exposing (href)
 import Pages.Containers as Containers
 import Pages.Info as Info
 import Routes exposing (Route)
@@ -70,10 +71,18 @@ loadCurrentPage ( model, cmd ) =
     ( { model | page = page }, Cmd.batch [ cmd, newCmd ] )
 
 
+navBar : Html Msg
+navBar =
+    ul []
+        [ li [] [ a [ href Routes.infoPath ] [ text "Info" ] ]
+        , li [] [ a [ href Routes.containersPath ] [ text "Containers" ] ]
+        ]
+
+
 view : Model -> Browser.Document Msg
 view model =
     { title = model.appTitle
-    , body = [ currentPage model ]
+    , body = [ navBar, currentPage model ]
     }
 
 
