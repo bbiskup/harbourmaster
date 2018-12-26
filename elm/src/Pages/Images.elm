@@ -86,6 +86,10 @@ imageNameOrId image =
 
 viewImages : List DockerImage -> Html Msg
 viewImages images =
+    let
+        sortedImages =
+            List.sortBy imageNameOrId images
+    in
     Table.table
         { options = [ Table.striped, Table.hover ]
         , thead =
@@ -96,7 +100,7 @@ viewImages images =
         , tbody =
             Table.tbody
                 []
-                (List.map viewImageRow images)
+                (List.map viewImageRow sortedImages)
         }
 
 
