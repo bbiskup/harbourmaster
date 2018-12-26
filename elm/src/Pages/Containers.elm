@@ -5,11 +5,13 @@ import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
+import Bootstrap.Table as Table
 import Html exposing (..)
 import Html.Attributes exposing (href)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
+import Routes exposing (containerPath)
 
 
 
@@ -83,13 +85,44 @@ containerNameOrId container =
     Maybe.withDefault container.id <| List.head container.names
 
 
-viewContainer : DockerContainer -> Card.Config msg
-viewContainer container =
-    Card.config [ Card.outlinePrimary ]
-        |> Card.headerH5 [] [ text <| containerNameOrId container ]
-        |> Card.block []
-            [ Block.text [] [ text container.image ]
-            ]
+
+{-
+   viewContainer : DockerContainer -> Card.Config msg
+   viewContainer container =
+       Card.config [ Card.outlinePrimary ]
+           |> Card.headerH5 [] [ text <| containerNameOrId container ]
+           |> Card.block []
+               [ Block.text [] [ text container.image ]
+               ]
+-}
+
+
+viewContainers : List DockerContainer -> Html Msg
+viewContainers containers =
+    Table.table
+        { options = [ Table.striped, Table.hover ]
+        , thead =
+            Table.simpleThead
+                [ Table.th [] [ text "Name" ]
+                , Table.th [] [ text "Image" ]
+                ]
+        , tbody =
+            Table.tbody
+                []
+                (List.map viewContainerRow containers)
+        }
+
+
+viewContainerRow : DockerContainer -> Table.Row Msg
+viewContainerRow container =
+    let
+        containerName =
+            text <| containerNameOrId container
+    in
+    Table.tr []
+        [ Table.td [] [ a [ href <| containerPath container.id ] [ containerName ] ]
+        , Table.td [] [ text container.image ]
+        ]
 
 
 view : Model -> Html Msg
@@ -99,7 +132,7 @@ view model =
         content =
             case model.dockerContainers of
                 Just (DockerContainers dockerContainers) ->
-                    Card.columns <| List.map viewContainer dockerContainers
+                    viewContainers dockerContainers
 
                 Nothing ->
                     text "No containers"

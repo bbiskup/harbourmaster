@@ -1,4 +1,4 @@
-module Routes exposing (Route(..), containersPath, infoPath, parseUrl)
+module Routes exposing (Route(..), containerPath, containersPath, infoPath, parseUrl)
 
 import Url exposing (Url)
 import Url.Parser exposing (..)
@@ -62,3 +62,8 @@ infoPath =
 containersPath : String
 containersPath =
     pathFor ContainersRoute
+
+
+containerPath : String -> String
+containerPath id =
+    pathFor ContainersRoute ++ "/" ++ id
