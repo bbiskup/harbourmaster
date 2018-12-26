@@ -4,6 +4,11 @@ import Url exposing (Url)
 import Url.Parser exposing (..)
 
 
+appPrefix : String
+appPrefix =
+    "app"
+
+
 type Route
     = InfoRoute
     | ContainersRoute
@@ -14,8 +19,8 @@ type Route
 matchers : Parser (Route -> a) a
 matchers =
     oneOf
-        [ map InfoRoute (s "app" </> s "info")
-        , map ContainersRoute (s "app" </> s "containers")
+        [ map InfoRoute (s appPrefix </> s "info")
+        , map ContainersRoute (s appPrefix </> s "containers")
         ]
 
 
@@ -31,15 +36,19 @@ parseUrl url =
 
 pathFor : Route -> String
 pathFor route =
-    case route of
-        InfoRoute ->
-            "/info"
+    let
+        urlSuffix =
+            case route of
+                InfoRoute ->
+                    "/info"
 
-        ContainersRoute ->
-            "/containers"
+                ContainersRoute ->
+                    "/containers"
 
-        {- ContainerRoute id ->
-           "/containers/" ++ id
-        -}
-        NotFoundRoute ->
-            "/"
+                {- ContainerRoute id ->
+                   "/containers/" ++ id
+                -}
+                NotFoundRoute ->
+                    "/"
+    in
+    "/" ++ appPrefix ++ urlSuffix
