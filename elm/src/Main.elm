@@ -158,7 +158,9 @@ update msg model =
                 ( newPageModel, newCmd ) =
                     Info.update subMsg pageModel
             in
-            ( { model | page = PageInfo newPageModel }, Cmd.map InfoMsg newCmd )
+            ( { model | page = PageInfo newPageModel }
+            , Cmd.map InfoMsg newCmd
+            )
 
         ( InfoMsg subMsg, _ ) ->
             ( model, Cmd.none )
@@ -168,7 +170,9 @@ update msg model =
                 ( newPageModel, newCmd ) =
                     Containers.update subMsg pageModel
             in
-            ( { model | page = PageContainers newPageModel }, Cmd.map ContainersMsg newCmd )
+            ( { model | page = PageContainers newPageModel }
+            , Cmd.map ContainersMsg newCmd
+            )
 
         ( ContainersMsg subMsg, _ ) ->
             ( model, Cmd.none )
