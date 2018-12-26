@@ -5,11 +5,12 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (href)
+import Html.Attributes exposing (href, title)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
 import Routes exposing (imagesPath)
+import String.Extra exposing (ellipsis)
 
 
 
@@ -102,11 +103,13 @@ viewImages images =
 viewImageRow : DockerImage -> Table.Row Msg
 viewImageRow image =
     let
+        imageName : String
         imageName =
-            text <| imageNameOrId image
+            imageNameOrId image
+                |> ellipsis 40
     in
     Table.tr []
-        [ Table.td [] [ a [ href <| "TODO_image_id" ] [ imageName ] ]
+        [ Table.td [] [ a [ title imageName, href <| "TODO_image_id" ] [ text imageName ] ]
         , Table.td [] [ text <| String.fromInt image.size ]
         ]
 
