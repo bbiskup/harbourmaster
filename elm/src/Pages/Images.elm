@@ -109,7 +109,7 @@ viewImageRow image =
                 |> ellipsis 40
     in
     Table.tr []
-        [ Table.td [] [ a [ title imageName, href <| "TODO_image_id" ] [ text imageName ] ]
+        [ Table.td [] [ a [ title imageName, href <| image.id ] [ text imageName ] ]
         , Table.td [] [ text <| String.fromInt image.size ]
         ]
 
