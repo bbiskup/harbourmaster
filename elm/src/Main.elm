@@ -1,73 +1,160 @@
 module Main exposing (main)
 
-import Browser
+import Browser exposing (UrlRequest)
+import Browser.Navigation as Nav
 import Html exposing (..)
-import Pages.Info
+import Pages.Containers as Containers
+import Pages.Info as Info
+import Routes exposing (Route)
 import Types exposing (AppState)
-
-
-type Page
-    = InfoPage Pages.Info.Model
+import Url exposing (Url)
 
 
 type alias Model =
-    { appState : AppState
-    , currPage : Page
+    { appTitle : String
+    , navKey : Nav.Key
+    , route : Route
+    , page : Page
     }
+
+
+type Page
+    = PageInfo Info.Model
+    | PageContainers Containers.Model
+    | PageNone
 
 
 type Msg
-    = NavInfo
-    | Info Pages.Info.Msg
+    = OnUrlChange Url
+    | OnUrlRequest UrlRequest
+    | InfoMsg Info.Msg
+    | ContainersMsg Containers.Msg
 
 
-initialModel : Model
-initialModel =
-    { appState = { dummyGlobalState = "dummy_global_state" }
-    , currPage = InfoPage Pages.Info.init
+init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init () url navKey =
+    let
+        model =
+            { appTitle = "HarbourMaster"
+            , navKey = navKey
+            , route = Routes.parseUrl url
+            , page = PageNone
+            }
+    in
+    ( model, Cmd.none )
+        |> loadCurrentPage
+
+
+loadCurrentPage : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+loadCurrentPage ( model, cmd ) =
+    let
+        ( page, newCmd ) =
+            case model.route of
+                Routes.InfoRoute ->
+                    let
+                        ( pageModel, pageCmd ) =
+                            Info.init
+                    in
+                    ( PageInfo pageModel, Cmd.map InfoMsg pageCmd )
+
+                Routes.ContainersRoute ->
+                    let
+                        ( pageModel, pageCmd ) =
+                            Containers.init
+                    in
+                    ( PageContainers pageModel, Cmd.map ContainersMsg pageCmd )
+
+                Routes.NotFoundRoute ->
+                    ( PageNone, Cmd.none )
+    in
+    ( { model | page = page }, Cmd.batch [ cmd, newCmd ] )
+
+
+view : Model -> Browser.Document Msg
+view model =
+    { title = model.appTitle
+    , body = [ currentPage model ]
     }
 
 
-initialCmd : Cmd Msg
-initialCmd =
-    Pages.Info.initialCmd |> Cmd.map Info
+currentPage : Model -> Html Msg
+currentPage model =
+    case model.page of
+        PageInfo pageModel ->
+            div [] [ text "Info page" ]
+
+        PageContainers pageModel ->
+            div [] [ text "Containers page" ]
+
+        PageNone ->
+            notFoundView
 
 
-view : Model -> Html Msg
-view model =
-    case model.currPage of
-        InfoPage pageModel ->
-            Pages.Info.page pageModel |> Html.map Info
+notFoundView : Html Msg
+notFoundView =
+    div [] [ text "not found" ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ appState } as model) =
-    case msg of
-        -- navigate to info page
-        NavInfo ->
-            ( { model | currPage = InfoPage Pages.Info.init }, Cmd.none )
+update msg model =
+    case ( msg, model.page ) of
+        ( OnUrlRequest urlRequest, _ ) ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.navKey (Url.toString url) )
 
-        Info pageMsg ->
+                Browser.External url ->
+                    ( model, Nav.load url )
+
+        ( OnUrlChange url, _ ) ->
             let
-                (InfoPage pageModel) =
-                    model.currPage
-
-                ( infoModel, infoCmd ) =
-                    Pages.Info.update pageMsg pageModel
+                newRoute =
+                    Routes.parseUrl url
             in
-            ( { model | currPage = InfoPage infoModel }, Cmd.map Info infoCmd )
+            ( { model | route = newRoute }, Cmd.none )
+                |> loadCurrentPage
+
+        ( InfoMsg subMsg, PageInfo pageModel ) ->
+            let
+                ( newPageModel, newCmd ) =
+                    Info.update subMsg pageModel
+            in
+            ( { model | page = PageInfo newPageModel }, Cmd.map InfoMsg newCmd )
+
+        ( InfoMsg subMsg, _ ) ->
+            ( model, Cmd.none )
+
+        ( ContainersMsg subMsg, PageContainers pageModel ) ->
+            let
+                ( newPageModel, newCmd ) =
+                    Containers.update subMsg pageModel
+            in
+            ( { model | page = PageContainers newPageModel }, Cmd.map ContainersMsg newCmd )
+
+        ( ContainersMsg subMsg, _ ) ->
+            ( model, Cmd.none )
 
 
-init : () -> ( Model, Cmd Msg )
-init flags =
-    ( initialModel, initialCmd )
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    case model.page of
+        PageInfo pageModel ->
+            Sub.map InfoMsg (Info.subscriptions pageModel)
+
+        PageContainers pageModel ->
+            Sub.map ContainersMsg (Containers.subscriptions pageModel)
+
+        PageNone ->
+            Sub.none
 
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.application
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
+        , onUrlRequest = OnUrlRequest
+        , onUrlChange = OnUrlChange
         }

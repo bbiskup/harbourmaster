@@ -5,6 +5,6 @@ run-server:
 	# FLASK_APP=harbourmaster.py flask run --port 9000
 
 build-frontend:
-	(cd elm && elm make src/HarbourMaster.elm --output ../static/elm.js)
+	(cd elm && elm make src/Main.elm --output ../static/elm.js)
 	
 

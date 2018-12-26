@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, redirect
 from flask_restplus import Resource, Api
 import requests
 import requests_unixsocket
@@ -13,7 +13,12 @@ app.register_blueprint(blueprint)
 session = requests_unixsocket.Session()
 
 @app.route('/')
-def index():
+def root():
+    return redirect('/app')
+
+@app.route('/app', defaults={'path': ''})
+@app.route('/<path:path>')
+def index(path):
     return app.send_static_file('index.html')
 
 docker_engine_parser = api.parser()
@@ -21,6 +26,7 @@ docker_engine_parser.add_argument('url',
                                   type=str,
                                   required=True,
                                   help='A Docker engine URL is required')
+
 
 @api.route('/docker-engine/')
 @api.expect(docker_engine_parser)

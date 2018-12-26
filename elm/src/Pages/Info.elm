@@ -1,4 +1,4 @@
-module Pages.Info exposing (Model, Msg(..), init, initialCmd, page, update)
+module Pages.Info exposing (Model, Msg(..), init, initialCmd, page, subscriptions, update)
 
 {- Visualization of 'docker info' -}
 
@@ -53,11 +53,13 @@ initialCmd =
     getDockerInfo
 
 
-init : Model
+init : ( Model, Cmd Msg )
 init =
-    { dockerInfo = Nothing
-    , serverErrMsg = ""
-    }
+    ( { dockerInfo = Nothing
+      , serverErrMsg = ""
+      }
+    , Cmd.none
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -87,3 +89,8 @@ page model =
                     [ text "loading..." ]
     in
     div [] content
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
