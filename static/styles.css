@@ -1,0 +1,9 @@
+html,
+body{
+    height: 100%;
+}
+
+.harbourmaster-sidebar{
+    background-color: black;
+    color: white;
+}

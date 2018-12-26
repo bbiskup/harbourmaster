@@ -4,10 +4,12 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Navbar as Navbar
+import Bootstrap.Utilities.Size exposing (h100)
 import Browser exposing (UrlRequest)
 import Browser.Navigation as Nav
 import Html exposing (..)
 import Html.Attributes exposing (class, href, style)
+import Json.Encode as Encode
 import Pages.Containers as Containers
 import Pages.Info as Info
 import Routes exposing (Route)
@@ -84,31 +86,41 @@ loadCurrentPage ( model, cmd ) =
     ( { model | page = page }, Cmd.batch [ cmd, newCmd ] )
 
 
-navBar : Navbar.Config Msg
-navBar =
-    Navbar.config NavbarMsg
-        |> Navbar.fixTop
-        |> Navbar.brand
-            [ href "#" ]
-            [ text appTitle ]
-        |> Navbar.items
-            [ Navbar.itemLink [ href Routes.infoPath, class "nav-tabs" ] [ text "Info" ]
-            , Navbar.itemLink [ href Routes.containersPath ] [ text "Containers" ]
-            ]
+
+{-
+   -- Bootstrap navbar at top
+   navBar : Navbar.Config Msg
+   navBar =
+       Navbar.config NavbarMsg
+           |> Navbar.fixTop
+           |> Navbar.brand
+               [ href "#" ]
+               [ text appTitle ]
+           |> Navbar.items
+               [ Navbar.itemLink [ href Routes.infoPath, class "nav-tabs" ] [ text "Info" ]
+               , Navbar.itemLink [ href Routes.containersPath ] [ text "Containers" ]
+               ]
+-}
+
+
+sideBar : Html Msg
+sideBar =
+    ul [ style "list-style-type" "none", style "padding-left" "0" ]
+        [ li [] [ a [ href "/app/info" ] [ text "Info" ] ]
+        , li [] [ a [ href "/app/containers" ] [ text "Containers" ] ]
+        ]
 
 
 view : Model -> Browser.Document Msg
 view model =
     { title = appTitle
     , body =
-        [ Grid.row []
-            [ Grid.col []
-                [ Navbar.view model.navbarState <| navBar
+        [ Grid.containerFluid [ h100 ]
+            [ Grid.row [ Row.attrs [ h100 ] ]
+                [ Grid.col [ Col.xs2, Col.attrs [ class "harbourmaster-sidebar" ] ] [ sideBar ]
+                , Grid.col [ Col.xs10 ] [ currentPage model ]
                 ]
             ]
-        , Grid.row [ Row.attrs [ style "margin-top" "60px" ] ]
-            [ Grid.col [] [] ]
-        , currentPage model
         ]
     }
 
