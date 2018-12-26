@@ -106,7 +106,7 @@ view model =
                 [ Navbar.view model.navbarState <| navBar
                 ]
             ]
-        , Grid.row [ Row.attrs [ style "margin-top" "55px" ] ]
+        , Grid.row [ Row.attrs [ style "margin-top" "60px" ] ]
             [ Grid.col [] [] ]
         , currentPage model
         ]
