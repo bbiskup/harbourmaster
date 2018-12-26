@@ -7,4 +7,3 @@ run-server:
 build-frontend:
 	(cd elm && elm make src/Main.elm --output ../static/elm.js)
 	
-

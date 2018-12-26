@@ -91,7 +91,7 @@ viewImages images =
         , thead =
             Table.simpleThead
                 [ Table.th [] [ text "Name" ]
-                , Table.th [] [ text "Size" ]
+                , Table.th [] [ text "Size (MiB)" ]
                 ]
         , tbody =
             Table.tbody
@@ -107,10 +107,17 @@ viewImageRow image =
         imageName =
             imageNameOrId image
                 |> ellipsis 40
+
+        sizeStr =
+            image.size
+                |> toFloat
+                |> (*) (1 / 1024 / 1024)
+                |> round
+                |> String.fromInt
     in
     Table.tr []
         [ Table.td [] [ a [ title imageName, href <| image.id ] [ text imageName ] ]
-        , Table.td [] [ text <| String.fromInt image.size ]
+        , Table.td [] [ text sizeStr ]
         ]
 
 
