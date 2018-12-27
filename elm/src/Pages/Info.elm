@@ -106,13 +106,14 @@ update msg model =
             ( model, getDockerInfo )
 
 
-viewSection : DockerInfo -> String -> List ( String, String ) -> Html Msg
+viewSection : DockerInfo -> String -> List ( String, Html Msg ) -> Html Msg
 viewSection info title data =
     let
+        tableRow : ( String, Html Msg ) -> Table.Row Msg
         tableRow ( col1, col2 ) =
             Table.tr []
                 [ Table.th [ Table.cellAttr <| style "width" "20%" ] [ text col1 ]
-                , Table.td [ Table.cellAttr <| style "width" "80%" ] [ text col2 ]
+                , Table.td [ Table.cellAttr <| style "width" "80%" ] [ col2 ]
                 ]
 
         sectionTable : Html Msg
@@ -140,26 +141,26 @@ view model =
                 Just info ->
                     let
                         containersData =
-                            [ ( "# running", String.fromInt info.containersNumRunning )
-                            , ( "# stopped", String.fromInt info.containersNumStopped )
-                            , ( "# paused", String.fromInt info.containersNumPaused )
+                            [ ( "# running", text <| String.fromInt info.containersNumRunning )
+                            , ( "# stopped", text <| String.fromInt info.containersNumStopped )
+                            , ( "# paused", text <| String.fromInt info.containersNumPaused )
                             ]
 
                         osData =
-                            [ ( "Operating system type", info.osType )
-                            , ( "Operating system", info.os )
-                            , ( "Kernel version", info.osKernelVersion )
-                            , ( "Architecture", info.osArchitecture )
+                            [ ( "Operating system type", text <| info.osType )
+                            , ( "Operating system", text <| info.os )
+                            , ( "Kernel version", text <| info.osKernelVersion )
+                            , ( "Architecture", text <| info.osArchitecture )
                             ]
 
                         hardwareData =
-                            [ ( "# of CPUs", String.fromInt info.hwNumCPUs )
-                            , ( "Memory (MiB)", String.fromInt <| bytesToMiB info.hwMemTotal )
+                            [ ( "# of CPUs", text <| String.fromInt info.hwNumCPUs )
+                            , ( "Memory (MiB)", text <| String.fromInt <| bytesToMiB info.hwMemTotal )
                             ]
 
                         serverData =
-                            [ ( "Docker daemon ID ", info.serverDaemonID )
-                            , ( "Version ", info.serverVersion )
+                            [ ( "Docker daemon ID ", text <| info.serverDaemonID )
+                            , ( "Version ", text <| info.serverVersion )
                             ]
                     in
                     List.map (\( title, data ) -> viewSection info title data)
