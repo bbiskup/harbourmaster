@@ -12,6 +12,7 @@ import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
 import Routes exposing (imagesPath)
 import String.Extra exposing (ellipsis)
+import Util exposing (bytesToMiB)
 
 
 
@@ -133,9 +134,7 @@ viewImageRow image =
 
         sizeStr =
             image.size
-                |> toFloat
-                |> (*) (1 / 1024 / 1024)
-                |> round
+                |> bytesToMiB
                 |> String.fromInt
     in
     Table.tr []
