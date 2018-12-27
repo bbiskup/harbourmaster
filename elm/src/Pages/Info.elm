@@ -29,6 +29,7 @@ type alias DockerInfo =
     , osType : String
     , os : String
     , kernelVersion : String
+    , architecture : String
     , daemonID : String
     , driver : String
     }
@@ -45,6 +46,7 @@ dockerInfoDecoder =
         |> required "OSType" Decode.string
         |> required "OperatingSystem" Decode.string
         |> required "KernelVersion" Decode.string
+        |> required "Architecture" Decode.string
         |> required "ID" Decode.string
         |> required "Driver" Decode.string
 
@@ -127,6 +129,7 @@ view model =
                             [ ( "Operating system type", info.osType )
                             , ( "Operating system", info.os )
                             , ( "Kernel version", info.kernelVersion )
+                            , ( "Architecture", info.architecture )
                             ]
 
                         serverData =
