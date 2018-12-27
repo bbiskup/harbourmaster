@@ -1,5 +1,8 @@
 module Main exposing (main)
 
+{-| SPA routing (see e.g. <https://github.com/sporto/elm-tutorial-app>)
+-}
+
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
@@ -11,6 +14,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, href)
 import Json.Encode as Encode
 import Pages.Containers as Containers
+import Pages.Image as Image
 import Pages.Images as Images
 import Pages.Info as Info
 import Routes exposing (Route)
@@ -35,6 +39,7 @@ type Page
     = PageInfo Info.Model
     | PageContainers Containers.Model
     | PageImages Images.Model
+    | PageImage Image.Model
     | PageNone
 
 
@@ -44,6 +49,7 @@ type Msg
     | InfoMsg Info.Msg
     | ContainersMsg Containers.Msg
     | ImagesMsg Images.Msg
+    | ImageMsg Image.Msg
     | NavbarMsg Navbar.State
 
 
@@ -89,6 +95,13 @@ loadCurrentPage ( model, cmd ) =
                             Images.init
                     in
                     ( PageImages pageModel, Cmd.map ImagesMsg pageCmd )
+
+                Routes.ImageRoute id ->
+                    let
+                        ( pageModel, pageCmd ) =
+                            Image.init id
+                    in
+                    ( PageImage pageModel, Cmd.map ImageMsg pageCmd )
 
                 Routes.NotFoundRoute ->
                     ( PageNone, Cmd.none )
@@ -155,6 +168,10 @@ currentPage model =
             Images.view pageModel
                 |> Html.map ImagesMsg
 
+        PageImage pageModel ->
+            Image.view pageModel
+                |> Html.map ImageMsg
+
         PageNone ->
             notFoundView
 
@@ -219,6 +236,18 @@ update msg model =
         ( ImagesMsg subMsg, _ ) ->
             ( model, Cmd.none )
 
+        ( ImageMsg subMsg, PageImage pageModel ) ->
+            let
+                ( newPageModel, newCmd ) =
+                    Image.update subMsg pageModel
+            in
+            ( { model | page = PageImage newPageModel }
+            , Cmd.map ImageMsg newCmd
+            )
+
+        ( ImageMsg subMsg, _ ) ->
+            ( model, Cmd.none )
+
         ( NavbarMsg state, _ ) ->
             ( { model | navbarState = state }, Cmd.none )
 
@@ -234,6 +263,9 @@ subscriptions model =
 
         PageImages pageModel ->
             Sub.map ImagesMsg (Images.subscriptions pageModel)
+
+        PageImage pageModel ->
+            Sub.map ImageMsg (Image.subscriptions pageModel)
 
         PageNone ->
             Sub.none

@@ -1,5 +1,8 @@
 module Pages.Images exposing (Model, Msg, init, subscriptions, update, view)
 
+{-| Page for all Docker images
+-}
+
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
@@ -11,7 +14,7 @@ import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
-import Routes exposing (imagesPath)
+import Routes exposing (imagePath, imagesPath)
 import String.Extra exposing (ellipsis)
 import Util exposing (bytesToMiB)
 
@@ -139,8 +142,7 @@ viewImageRow image =
                 |> String.fromInt
     in
     Table.tr []
-        -- TODO supply full link to image in href
-        [ Table.td [] [ a [ title imageName, href <| image.id ] [ text imageName ] ]
+        [ Table.td [] [ a [ title imageName, href <| imagePath image.id ] [ text imageName ] ]
         , Table.td [] [ text sizeStr ]
         ]
 
