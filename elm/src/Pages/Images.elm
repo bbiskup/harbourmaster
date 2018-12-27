@@ -66,7 +66,7 @@ type alias Model =
 type Msg
     = GetDockerImages
     | GotDockerImages (Result Http.Error DockerImages)
-    | ToggleFilterUnnamedImages Bool
+    | ToggleHideUnnamedImages Bool
 
 
 init : ( Model, Cmd Msg )
@@ -90,7 +90,7 @@ update msg model =
         GetDockerImages ->
             ( model, getDockerImages )
 
-        ToggleFilterUnnamedImages isChecked ->
+        ToggleHideUnnamedImages isChecked ->
             ( { model | filterUnnamedImages = isChecked }
             , getDockerImages
             )
@@ -164,10 +164,10 @@ view model =
             [ h1 [] [ text "Images" ]
             , Checkbox.checkbox
                 [ Checkbox.inline
-                , Checkbox.onCheck ToggleFilterUnnamedImages
+                , Checkbox.onCheck ToggleHideUnnamedImages
                 , Checkbox.checked model.filterUnnamedImages
                 ]
-                "Filter unnamed images"
+                "Hide unnamed images"
             , br
                 []
                 []
