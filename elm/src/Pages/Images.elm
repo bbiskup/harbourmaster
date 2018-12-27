@@ -1,5 +1,6 @@
 module Pages.Images exposing (Model, Msg, init, subscriptions, update, view)
 
+import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
@@ -62,7 +63,7 @@ type alias Model =
 type Msg
     = GetDockerImages
     | GotDockerImages (Result Http.Error DockerImages)
-    | ToggleFilterUnnamedImages
+    | ToggleFilterUnnamedImages Bool
 
 
 init : ( Model, Cmd Msg )
@@ -86,8 +87,8 @@ update msg model =
         GetDockerImages ->
             ( model, getDockerImages )
 
-        ToggleFilterUnnamedImages ->
-            ( { model | filterUnnamedImages = not model.filterUnnamedImages }
+        ToggleFilterUnnamedImages isChecked ->
+            ( { model | filterUnnamedImages = isChecked }
             , getDockerImages
             )
 
@@ -159,15 +160,12 @@ view model =
     Grid.row []
         [ Grid.col [ Col.xs11 ]
             [ h1 [] [ text "Images" ]
-            , label []
-                [ input
-                    [ type_ "checkbox"
-                    , onClick ToggleFilterUnnamedImages
-                    , checked model.filterUnnamedImages
-                    ]
-                    []
-                , text "Filter unnamed images"
+            , Checkbox.checkbox
+                [ Checkbox.inline
+                , Checkbox.onCheck ToggleFilterUnnamedImages
+                , Checkbox.checked model.filterUnnamedImages
                 ]
+                "Filter unnamed images"
             , br
                 []
                 []
