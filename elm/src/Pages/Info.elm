@@ -41,6 +41,7 @@ type alias DockerInfo =
 
     -- Server
     , daemonID : String
+    , serverVersion : String
     , driver : String
     }
 
@@ -63,6 +64,7 @@ dockerInfoDecoder =
         |> required "MemTotal" Decode.int
         -- Server
         |> required "ID" Decode.string
+        |> required "ServerVersion" Decode.string
         |> required "Driver" Decode.string
 
 
@@ -154,6 +156,7 @@ view model =
 
                         serverData =
                             [ ( "Docker daemon ID ", info.daemonID )
+                            , ( "Version ", info.serverVersion )
                             ]
                     in
                     List.map (\( title, data ) -> viewSection info title data)
