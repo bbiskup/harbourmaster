@@ -3,6 +3,7 @@ module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, upd
 {- Visualization of 'docker info' -}
 
 import Bootstrap.Table as Table
+import Dict exposing (Dict)
 import Html exposing (Html, div, h1, h5, text)
 import Html.Attributes exposing (style)
 import Http
@@ -43,6 +44,7 @@ type alias DockerInfo =
     , serverDaemonID : String
     , serverVersion : String
     , serverDriver : String
+    , plugins : Dict String (Maybe (List String))
     }
 
 
@@ -66,6 +68,7 @@ dockerInfoDecoder =
         |> required "ID" Decode.string
         |> required "ServerVersion" Decode.string
         |> required "Driver" Decode.string
+        |> required "Plugins" (Decode.dict (Decode.nullable (Decode.list Decode.string)))
 
 
 getDockerInfo : Cmd Msg
