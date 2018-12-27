@@ -45,9 +45,9 @@ type alias DockerInfo =
     , hwMemTotal : Int
 
     -- Server
-    , serverDaemonID : String
-    , serverVersion : String
-    , serverDriver : String
+    , engineDaemonID : String
+    , engineVersion : String
+    , engineDriver : String
     , plugins : Plugins
     }
 
@@ -184,9 +184,9 @@ view model =
                             , ( "Memory (MiB)", text <| String.fromInt <| bytesToMiB info.hwMemTotal )
                             ]
 
-                        serverData =
-                            [ ( "Docker daemon ID ", text <| info.serverDaemonID )
-                            , ( "Version ", text <| info.serverVersion )
+                        engineData =
+                            [ ( "Docker daemon ID ", text <| info.engineDaemonID )
+                            , ( "Version ", text <| info.engineVersion )
                             , ( "Plugins ", viewPlugins info.plugins )
                             ]
                     in
@@ -194,7 +194,7 @@ view model =
                         [ ( "Containers", containersData )
                         , ( "Operating system", osData )
                         , ( "Hardware", hardwareData )
-                        , ( "Server", serverData )
+                        , ( "Docker engine", engineData )
                         ]
 
                 Nothing ->
