@@ -84,6 +84,10 @@ containerNameOrId container =
 
 viewContainers : List DockerContainer -> Html Msg
 viewContainers containers =
+    let
+        sortedContainers =
+            List.sortBy (\container -> containerNameOrId container) containers
+    in
     Table.table
         { options = [ Table.striped, Table.hover ]
         , thead =
@@ -94,7 +98,7 @@ viewContainers containers =
         , tbody =
             Table.tbody
                 []
-                (List.map viewContainerRow containers)
+                (List.map viewContainerRow sortedContainers)
         }
 
 
