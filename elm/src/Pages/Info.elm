@@ -88,6 +88,7 @@ viewContainersSection info =
         tableData =
             [ ( "# running", String.fromInt info.numContainersRunning )
             , ( "# stopped", String.fromInt info.numContainersStopped )
+            , ( "# paused", String.fromInt info.numContainersPaused )
             ]
 
         containersTable : Html Msg
