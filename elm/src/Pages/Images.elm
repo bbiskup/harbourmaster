@@ -168,6 +168,9 @@ view model =
                     []
                 , text "Filter unnamed images"
                 ]
+            , br
+                []
+                []
             , content
             ]
         ]
