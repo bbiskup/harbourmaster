@@ -139,6 +139,7 @@ viewImageRow image =
                 |> String.fromInt
     in
     Table.tr []
+        -- TODO supply full link to image in href
         [ Table.td [] [ a [ title imageName, href <| image.id ] [ text imageName ] ]
         , Table.td [] [ text sizeStr ]
         ]
