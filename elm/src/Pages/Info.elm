@@ -84,8 +84,8 @@ update msg model =
             ( model, getDockerInfo )
 
 
-viewContainersSection : DockerInfo -> Html Msg
-viewContainersSection info =
+viewSection : DockerInfo -> String -> List ( String, String ) -> Html Msg
+viewSection info title data =
     let
         tableRow ( col1, col2 ) =
             Table.tr []
@@ -93,85 +93,19 @@ viewContainersSection info =
                 , Table.td [] [ text col2 ]
                 ]
 
-        tableData =
-            [ ( "# running", String.fromInt info.numContainersRunning )
-            , ( "# stopped", String.fromInt info.numContainersStopped )
-            , ( "# paused", String.fromInt info.numContainersPaused )
-            ]
-
-        containersTable : Html Msg
-        containersTable =
+        sectionTable : Html Msg
+        sectionTable =
             Table.table
                 { options = [ Table.striped, Table.hover, Table.small ]
                 , thead =
                     Table.simpleThead []
                 , tbody =
-                    Table.tbody [] (List.map tableRow tableData)
+                    Table.tbody [] (List.map tableRow data)
                 }
     in
     div []
-        [ h5 [] [ text "Containers" ]
-        , containersTable
-        ]
-
-
-viewOSSection : DockerInfo -> Html Msg
-viewOSSection info =
-    let
-        tableRow ( col1, col2 ) =
-            Table.tr []
-                [ Table.th [] [ text col1 ]
-                , Table.td [] [ text col2 ]
-                ]
-
-        tableData =
-            [ ( "Operating system type", info.osType )
-            , ( "Operating system", info.os )
-            , ( "Kernel version", info.kernelVersion )
-            ]
-
-        osTable : Html Msg
-        osTable =
-            Table.table
-                { options = [ Table.striped, Table.hover, Table.small ]
-                , thead =
-                    Table.simpleThead []
-                , tbody =
-                    Table.tbody [] (List.map tableRow tableData)
-                }
-    in
-    div []
-        [ h5 [] [ text "Operating System" ]
-        , osTable
-        ]
-
-
-viewServerSection : DockerInfo -> Html Msg
-viewServerSection info =
-    let
-        tableRow ( col1, col2 ) =
-            Table.tr []
-                [ Table.th [] [ text col1 ]
-                , Table.td [] [ text col2 ]
-                ]
-
-        tableData =
-            [ ( "Docker daemon ID ", info.daemonID )
-            ]
-
-        serverTable : Html Msg
-        serverTable =
-            Table.table
-                { options = [ Table.striped, Table.hover, Table.small ]
-                , thead =
-                    Table.simpleThead []
-                , tbody =
-                    Table.tbody [] (List.map tableRow tableData)
-                }
-    in
-    div []
-        [ h5 [] [ text "Server" ]
-        , serverTable
+        [ h5 [] [ text title ]
+        , sectionTable
         ]
 
 
@@ -182,10 +116,27 @@ view model =
         content =
             case model.dockerInfo of
                 Just info ->
-                    List.map (\f -> f info)
-                        [ viewContainersSection
-                        , viewOSSection
-                        , viewServerSection
+                    let
+                        containersData =
+                            [ ( "# running", String.fromInt info.numContainersRunning )
+                            , ( "# stopped", String.fromInt info.numContainersStopped )
+                            , ( "# paused", String.fromInt info.numContainersPaused )
+                            ]
+
+                        osData =
+                            [ ( "Operating system type", info.osType )
+                            , ( "Operating system", info.os )
+                            , ( "Kernel version", info.kernelVersion )
+                            ]
+
+                        serverData =
+                            [ ( "Docker daemon ID ", info.daemonID )
+                            ]
+                    in
+                    List.map (\( title, data ) -> viewSection info title data)
+                        [ ( "Containers", containersData )
+                        , ( "Operating system", osData )
+                        , ( "Server", serverData )
                         ]
 
                 Nothing ->
