@@ -106,8 +106,8 @@ viewSection info title data =
     let
         tableRow ( col1, col2 ) =
             Table.tr []
-                [ Table.th [ Table.cellAttr (style "width" "20%") ] [ text col1 ]
-                , Table.td [ Table.cellAttr (style "width" "80%") ] [ text col2 ]
+                [ Table.th [ Table.cellAttr <| style "width" "20%" ] [ text col1 ]
+                , Table.td [ Table.cellAttr <| style "width" "80%" ] [ text col2 ]
                 ]
 
         sectionTable : Html Msg
