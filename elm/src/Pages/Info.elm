@@ -2,7 +2,8 @@ module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, upd
 
 {- Visualization of 'docker info' -}
 
-import Html exposing (Html, div, h1, text)
+import Bootstrap.Table as Table
+import Html exposing (Html, div, h1, h5, text)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -75,6 +76,36 @@ update msg model =
             ( model, getDockerInfo )
 
 
+viewContainersSection : DockerInfo -> Html Msg
+viewContainersSection info =
+    let
+        tableRow ( col1, col2 ) =
+            Table.tr []
+                [ Table.td [] [ text col1 ]
+                , Table.td [] [ text col2 ]
+                ]
+
+        tableData =
+            [ ( "# running", String.fromInt info.numContainersRunning )
+            , ( "# stopped", String.fromInt info.numContainersStopped )
+            ]
+
+        containersTable : Html Msg
+        containersTable =
+            Table.table
+                { options = [ Table.striped, Table.hover, Table.small ]
+                , thead =
+                    Table.simpleThead []
+                , tbody =
+                    Table.tbody [] (List.map tableRow tableData)
+                }
+    in
+    div []
+        [ h5 [] [ text "Containers" ]
+        , containersTable
+        ]
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -82,7 +113,7 @@ view model =
         content =
             case model.dockerInfo of
                 Just info ->
-                    [ text <| "# of running containers: " ++ String.fromInt info.numContainersRunning
+                    [ viewContainersSection info
                     ]
 
                 Nothing ->
