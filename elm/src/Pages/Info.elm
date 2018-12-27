@@ -82,8 +82,7 @@ view model =
         content =
             case model.dockerInfo of
                 Just info ->
-                    [ text "App"
-                    , text <| "# of running containers: " ++ String.fromInt info.numContainersRunning
+                    [ text <| "# of running containers: " ++ String.fromInt info.numContainersRunning
                     ]
 
                 Nothing ->
