@@ -15,6 +15,7 @@ type alias DockerImage =
     { id : String
     , repoTags : List String
     , size : Int
+    , author : String
     }
 
 
@@ -24,6 +25,7 @@ dockerImageDecoder =
         |> required "Id" Decode.string
         |> required "RepoTags" (Decode.list Decode.string)
         |> required "Size" Decode.int
+        |> required "Author" Decode.string
 
 
 getDockerImage : String -> Cmd Msg
