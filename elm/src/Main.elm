@@ -98,13 +98,31 @@ loadCurrentPage ( model, cmd ) =
 
 sideBar : Html Msg
 sideBar =
+    let
+        data =
+            [ { link = Routes.infoPath
+              , label = "Info"
+              , icon = "info-circle"
+              }
+            , { link = Routes.imagesPath
+              , label = "Images"
+              , icon = "image"
+              }
+            , { link = Routes.containersPath
+              , label = "Containers"
+              , icon = "box"
+              }
+            ]
+
+        renderLink linkData =
+            li []
+                [ i [ class <| "harbourmaster-nav-link-icon fas fa-" ++ linkData.icon ] []
+                , a [ href linkData.link, class "harbourmaster-nav-link" ] [ text linkData.label ]
+                ]
+    in
     div [ class "harbourmaster-sidebar", h100 ]
         [ h6 [] [ text appTitle ]
-        , ul [ class "harbourmaster-nav-link-list" ]
-            [ li [] [ a [ href Routes.infoPath ] [ text "Info" ] ]
-            , li [] [ a [ href Routes.imagesPath ] [ text "Images" ] ]
-            , li [] [ a [ href Routes.containersPath ] [ text "Containers" ] ]
-            ]
+        , ul [ class "harbourmaster-nav-link-list" ] (List.map renderLink data)
         ]
 
 
