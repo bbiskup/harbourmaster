@@ -12,6 +12,7 @@ appPrefix =
 type Route
     = InfoRoute
     | ContainersRoute
+    | ContainerRoute String
       --    | ContainerRoute String
     | ImagesRoute
     | ImageRoute String
@@ -22,6 +23,7 @@ matchers : Parser (Route -> a) a
 matchers =
     oneOf
         [ map InfoRoute (s appPrefix </> s "info")
+        , map ContainerRoute (s appPrefix </> s "containers" </> string)
         , map ContainersRoute (s appPrefix </> s "containers")
         , map ImageRoute (s appPrefix </> s "images" </> string)
         , map ImagesRoute (s appPrefix </> s "images")
@@ -46,12 +48,12 @@ pathFor route =
                 InfoRoute ->
                     "/info"
 
+                ContainerRoute id ->
+                    "/containers/" ++ id
+
                 ContainersRoute ->
                     "/containers"
 
-                {- ContainerRoute id ->
-                   "/containers/" ++ id
-                -}
                 ImageRoute id ->
                     "/images/" ++ id
 
@@ -76,7 +78,7 @@ containersPath =
 
 containerPath : String -> String
 containerPath id =
-    pathFor ContainersRoute ++ "/" ++ id
+    pathFor <| ContainerRoute id
 
 
 imagesPath : String

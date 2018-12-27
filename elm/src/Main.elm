@@ -14,6 +14,7 @@ import Browser.Navigation as Nav
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
 import Json.Encode as Encode
+import Pages.Container as Container
 import Pages.Containers as Containers
 import Pages.Image as Image
 import Pages.Images as Images
@@ -40,6 +41,7 @@ type alias Model =
 type Page
     = PageInfo Info.Model
     | PageContainers Containers.Model
+    | PageContainer Container.Model
     | PageImages Images.Model
     | PageImage Image.Model
     | PageNone
@@ -62,6 +64,7 @@ type Msg
     | OnUrlRequest UrlRequest
     | InfoMsg Info.Msg
     | ContainersMsg Containers.Msg
+    | ContainerMsg Container.Msg
     | ImagesMsg Images.Msg
     | ImageMsg Image.Msg
     | NavbarMsg Navbar.State
@@ -102,6 +105,13 @@ loadCurrentPage ( model, cmd ) =
                             Containers.init
                     in
                     ( PageContainers pageModel, Cmd.map ContainersMsg pageCmd )
+
+                Routes.ContainerRoute id ->
+                    let
+                        ( pageModel, pageCmd ) =
+                            Container.init id
+                    in
+                    ( PageContainer pageModel, Cmd.map ContainerMsg pageCmd )
 
                 Routes.ImagesRoute ->
                     let
@@ -155,6 +165,19 @@ sideBar =
 
 breadCrumbList : Page -> BreadCrumbs
 breadCrumbList page =
+    let
+        imagesTitle =
+            "Images"
+
+        imageTitle =
+            "Image"
+
+        containersTitle =
+            "Containers"
+
+        containerTitle =
+            "Container"
+    in
     case page of
         PageInfo _ ->
             { crumbs = []
@@ -163,19 +186,26 @@ breadCrumbList page =
 
         PageImages _ ->
             { crumbs = []
-            , lastTitle = "Images"
+            , lastTitle = imagesTitle
             }
 
         PageImage _ ->
             { crumbs =
-                [ { route = Routes.ImagesRoute, title = "Images" }
+                [ { route = Routes.ImagesRoute, title = imagesTitle }
                 ]
-            , lastTitle = "Image"
+            , lastTitle = imageTitle
             }
 
         PageContainers _ ->
             { crumbs = []
-            , lastTitle = "Containers"
+            , lastTitle = containersTitle
+            }
+
+        PageContainer _ ->
+            { crumbs =
+                [ { route = Routes.ContainersRoute, title = containersTitle }
+                ]
+            , lastTitle = containerTitle
             }
 
         -- most pages are at the top level, so no breadcrumbs are needed
@@ -224,6 +254,10 @@ currentPage model =
         PageContainers pageModel ->
             Containers.view pageModel
                 |> Html.map ContainersMsg
+
+        PageContainer pageModel ->
+            Container.view pageModel
+                |> Html.map ContainerMsg
 
         PageImages pageModel ->
             Images.view pageModel
@@ -285,6 +319,18 @@ update msg model =
         ( ContainersMsg subMsg, _ ) ->
             ( model, Cmd.none )
 
+        ( ContainerMsg subMsg, PageContainer pageModel ) ->
+            let
+                ( newPageModel, newCmd ) =
+                    Container.update subMsg pageModel
+            in
+            ( { model | page = PageContainer newPageModel }
+            , Cmd.map ContainerMsg newCmd
+            )
+
+        ( ContainerMsg subMsg, _ ) ->
+            ( model, Cmd.none )
+
         ( ImagesMsg subMsg, PageImages pageModel ) ->
             let
                 ( newPageModel, newCmd ) =
@@ -321,6 +367,9 @@ subscriptions model =
 
         PageContainers pageModel ->
             Sub.map ContainersMsg (Containers.subscriptions pageModel)
+
+        PageContainer pageModel ->
+            Sub.map ContainerMsg (Container.subscriptions pageModel)
 
         PageImages pageModel ->
             Sub.map ImagesMsg (Images.subscriptions pageModel)
