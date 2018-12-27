@@ -26,6 +26,7 @@ type alias DockerInfo =
     , numContainersPaused : Int
     , numContainersStopped : Int
     , numImages : Int
+    , daemonID : String
     , driver : String
     }
 
@@ -38,6 +39,7 @@ dockerInfoDecoder =
         |> required "ContainersPaused" Decode.int
         |> required "ContainersStopped" Decode.int
         |> required "Images" Decode.int
+        |> required "ID" Decode.string
         |> required "Driver" Decode.string
 
 
@@ -107,6 +109,35 @@ viewContainersSection info =
         ]
 
 
+viewOSSection : DockerInfo -> Html Msg
+viewOSSection info =
+    let
+        tableRow ( col1, col2 ) =
+            Table.tr []
+                [ Table.th [] [ text col1 ]
+                , Table.td [] [ text col2 ]
+                ]
+
+        tableData =
+            [ ( "Daemon ID", info.daemonID )
+            ]
+
+        osTable : Html Msg
+        osTable =
+            Table.table
+                { options = [ Table.striped, Table.hover, Table.small ]
+                , thead =
+                    Table.simpleThead []
+                , tbody =
+                    Table.tbody [] (List.map tableRow tableData)
+                }
+    in
+    div []
+        [ h5 [] [ text "Operating System" ]
+        , osTable
+        ]
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -114,8 +145,10 @@ view model =
         content =
             case model.dockerInfo of
                 Just info ->
-                    [ viewContainersSection info
-                    ]
+                    List.map (\f -> f info)
+                        [ viewContainersSection
+                        , viewOSSection
+                        ]
 
                 Nothing ->
                     [ text "loading..." ]
