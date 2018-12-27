@@ -1,4 +1,4 @@
-module Util exposing (bytesToMiB)
+module Util exposing (bytesToMiB, lastElem)
 
 {-| General utilities
 -}
@@ -12,3 +12,8 @@ bytesToMiB bytes =
         |> toFloat
         |> (*) (1 / 1024 / 1024)
         |> round
+
+
+lastElem : List a -> Maybe a
+lastElem =
+    List.foldl (Just >> always) Nothing

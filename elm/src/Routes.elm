@@ -1,4 +1,4 @@
-module Routes exposing (Route(..), containerPath, containersPath, imagePath, imagesPath, infoPath, parseUrl)
+module Routes exposing (Route(..), containerPath, containersPath, imagePath, imagesPath, infoPath, parseUrl, pathFor)
 
 import Url exposing (Url)
 import Url.Parser exposing (..)

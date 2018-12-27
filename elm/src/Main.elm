@@ -3,6 +3,7 @@ module Main exposing (main)
 {-| SPA routing (see e.g. <https://github.com/sporto/elm-tutorial-app>)
 -}
 
+import Bootstrap.Breadcrumb as Breadcrumb
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
@@ -17,9 +18,10 @@ import Pages.Containers as Containers
 import Pages.Image as Image
 import Pages.Images as Images
 import Pages.Info as Info
-import Routes exposing (Route)
+import Routes exposing (Route, pathFor)
 import Types exposing (AppState)
 import Url exposing (Url)
+import Util exposing (lastElem)
 
 
 appTitle : String
@@ -41,6 +43,18 @@ type Page
     | PageImages Images.Model
     | PageImage Image.Model
     | PageNone
+
+
+type alias BreadCrumbSpec =
+    { route : Route
+    , title : String
+    }
+
+
+type alias BreadCrumbs =
+    { crumbs : List BreadCrumbSpec
+    , lastTitle : String
+    }
 
 
 type Msg
@@ -139,12 +153,59 @@ sideBar =
         ]
 
 
+breadCrumbList : Page -> BreadCrumbs
+breadCrumbList page =
+    case page of
+        PageInfo _ ->
+            { crumbs = []
+            , lastTitle = "Info"
+            }
+
+        PageImages _ ->
+            { crumbs = []
+            , lastTitle = "Images"
+            }
+
+        PageImage _ ->
+            { crumbs =
+                [ { route = Routes.ImagesRoute, title = "Images" }
+                ]
+            , lastTitle = "Image"
+            }
+
+        PageContainers _ ->
+            { crumbs = []
+            , lastTitle = "Containers"
+            }
+
+        -- most pages are at the top level, so no breadcrumbs are needed
+        PageNone ->
+            { crumbs = [], lastTitle = "" }
+
+
+renderBreadCrumbs : BreadCrumbs -> Html Msg
+renderBreadCrumbs breadCrumbs =
+    let
+        createBreadCrumb : BreadCrumbSpec -> Breadcrumb.Item msg
+        createBreadCrumb breadCrumbSpec =
+            Breadcrumb.item [] [ a [ href <| pathFor breadCrumbSpec.route ] [ text <| breadCrumbSpec.title ] ]
+    in
+    Breadcrumb.container
+        (List.map createBreadCrumb breadCrumbs.crumbs ++ [ Breadcrumb.item [] [ text <| breadCrumbs.lastTitle ] ])
+
+
 view : Model -> Browser.Document Msg
 view model =
+    let
+        breadCrumbs =
+            breadCrumbList model.page
+                |> renderBreadCrumbs
+    in
     { title = appTitle
     , body =
         [ Grid.containerFluid [ h100 ]
-            [ Grid.row [ Row.attrs [ h100 ] ]
+            [ Grid.row [] [ Grid.col [] [ breadCrumbs ] ]
+            , Grid.row [ Row.attrs [ h100 ] ]
                 [ Grid.col [ Col.xs2, Col.attrs [] ] [ sideBar ]
                 , Grid.col [ Col.xs10 ] [ currentPage model ]
                 ]
