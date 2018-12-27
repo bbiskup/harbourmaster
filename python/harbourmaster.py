@@ -16,10 +16,6 @@ session = requests_unixsocket.Session()
 def root():
     return redirect('/app')
 
-@app.route('/favicon.ico')
-def favicon():
-    return redirect('/static/favicon.ico')
-
 @app.route('/app', defaults={'path': ''})
 @app.route('/<path:path>')
 def index(path):
