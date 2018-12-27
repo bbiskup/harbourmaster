@@ -121,7 +121,7 @@ view model =
                     [ text "loading..." ]
     in
     div []
-        (h1 [] [ text "Images" ]
+        (h1 [] [ text "Info" ]
             :: content
         )
 
