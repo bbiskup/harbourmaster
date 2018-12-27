@@ -5,7 +5,7 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (href, title, type_)
+import Html.Attributes exposing (checked, href, title, type_)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
@@ -161,7 +161,12 @@ view model =
         [ Grid.col [ Col.xs11 ]
             [ h1 [] [ text "Images" ]
             , label []
-                [ input [ type_ "checkbox", onClick ToggleFilterUnnamedImages ] []
+                [ input
+                    [ type_ "checkbox"
+                    , onClick ToggleFilterUnnamedImages
+                    , checked model.filterUnnamedImages
+                    ]
+                    []
                 , text "Filter unnamed images"
                 ]
             , content
