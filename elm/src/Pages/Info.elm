@@ -4,7 +4,7 @@ module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, upd
 
 import Bootstrap.Table as Table
 import Dict exposing (Dict)
-import Html exposing (Html, div, h1, h5, text)
+import Html exposing (Html, b, div, h1, h5, li, p, text, ul)
 import Html.Attributes exposing (style)
 import Http
 import Json.Decode as Decode
@@ -21,6 +21,10 @@ type alias Model =
 type Msg
     = GetDockerInfo
     | GotDockerInfo (Result Http.Error DockerInfo)
+
+
+type alias Plugins =
+    Dict String (Maybe (List String))
 
 
 type alias DockerInfo =
@@ -44,7 +48,7 @@ type alias DockerInfo =
     , serverDaemonID : String
     , serverVersion : String
     , serverDriver : String
-    , plugins : Dict String (Maybe (List String))
+    , plugins : Plugins
     }
 
 
@@ -132,6 +136,28 @@ viewSection info title data =
         ]
 
 
+viewPlugins : Plugins -> Html Msg
+viewPlugins plugins =
+    let
+        renderPluginSection : ( String, Maybe (List String) ) -> Html Msg
+        renderPluginSection ( pluginSection, maybePlugins ) =
+            let
+                pluginsStr =
+                    case maybePlugins of
+                        Just pluginNames ->
+                            String.join ", " pluginNames
+
+                        Nothing ->
+                            "-"
+            in
+            p []
+                [ b [] [ text <| pluginSection ++ ": " ]
+                , text pluginsStr
+                ]
+    in
+    ul [] (List.map renderPluginSection <| Dict.toList plugins)
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -161,6 +187,7 @@ view model =
                         serverData =
                             [ ( "Docker daemon ID ", text <| info.serverDaemonID )
                             , ( "Version ", text <| info.serverVersion )
+                            , ( "Plugins ", viewPlugins info.plugins )
                             ]
                     in
                     List.map (\( title, data ) -> viewSection info title data)
