@@ -7,6 +7,7 @@ import Html exposing (Html, div, h1, h5, text)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
+import Util exposing (bytesToMiB)
 
 
 type alias Model =
@@ -21,15 +22,23 @@ type Msg
 
 
 type alias DockerInfo =
-    { id : String
-    , numContainersRunning : Int
+    { -- Containers & images
+      numContainersRunning : Int
     , numContainersPaused : Int
     , numContainersStopped : Int
     , numImages : Int
+
+    -- OS
     , osType : String
     , os : String
     , kernelVersion : String
     , architecture : String
+
+    -- Hardware
+    , numCPUs : Int
+    , memTotal : Int
+
+    -- Server
     , daemonID : String
     , driver : String
     }
@@ -38,15 +47,20 @@ type alias DockerInfo =
 dockerInfoDecoder : Decode.Decoder DockerInfo
 dockerInfoDecoder =
     Decode.succeed DockerInfo
-        |> required "ID" Decode.string
+        -- Containbrs & images
         |> required "ContainersRunning" Decode.int
         |> required "ContainersPaused" Decode.int
         |> required "ContainersStopped" Decode.int
         |> required "Images" Decode.int
+        -- OS
         |> required "OSType" Decode.string
         |> required "OperatingSystem" Decode.string
         |> required "KernelVersion" Decode.string
         |> required "Architecture" Decode.string
+        -- Hardware
+        |> required "NCPU" Decode.int
+        |> required "MemTotal" Decode.int
+        -- Server
         |> required "ID" Decode.string
         |> required "Driver" Decode.string
 
@@ -132,6 +146,11 @@ view model =
                             , ( "Architecture", info.architecture )
                             ]
 
+                        hardwareData =
+                            [ ( "# of CPUs", String.fromInt info.numCPUs )
+                            , ( "Memory (MiB)", String.fromInt <| bytesToMiB info.memTotal )
+                            ]
+
                         serverData =
                             [ ( "Docker daemon ID ", info.daemonID )
                             ]
@@ -139,6 +158,7 @@ view model =
                     List.map (\( title, data ) -> viewSection info title data)
                         [ ( "Containers", containersData )
                         , ( "Operating system", osData )
+                        , ( "Hardware", hardwareData )
                         , ( "Server", serverData )
                         ]
 
