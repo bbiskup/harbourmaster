@@ -148,7 +148,7 @@ sideBar =
                 ]
     in
     div [ class "harbourmaster-sidebar", h100 ]
-        [ h6 [] [ text appTitle ]
+        [ b [] [ text appTitle ]
         , ul [ class "harbourmaster-nav-link-list" ] (List.map renderLink data)
         ]
 
