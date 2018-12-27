@@ -4,7 +4,7 @@ UI for Docker Engine API
 Status: **pre-alpha**
 
 
-<b style="color:red;">Currently, there is no access control; the Docker engine API is accessible to anyone who can access the web application!</b>
+**DISCLAIMER: Currently, there is no access control; the Docker engine API is accessible to anyone who can access the web application!**
 
 # Development
 
