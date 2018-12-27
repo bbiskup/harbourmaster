@@ -39,12 +39,13 @@ type alias DockerInfo =
     , os : String
     , osKernelVersion : String
     , osArchitecture : String
+    , hostName : String
 
     -- Hardware
     , hwNumCPUs : Int
     , hwMemTotal : Int
 
-    -- Server
+    -- Docker engine
     , engineDaemonID : String
     , engineVersion : String
     , engineDriver : String
@@ -65,10 +66,11 @@ dockerInfoDecoder =
         |> required "OperatingSystem" Decode.string
         |> required "KernelVersion" Decode.string
         |> required "Architecture" Decode.string
+        |> required "Name" Decode.string
         -- Hardware
         |> required "NCPU" Decode.int
         |> required "MemTotal" Decode.int
-        -- Server
+        -- Docker engine
         |> required "ID" Decode.string
         |> required "ServerVersion" Decode.string
         |> required "Driver" Decode.string
@@ -177,6 +179,7 @@ view model =
                             , ( "Operating system", text <| info.os )
                             , ( "Kernel version", text <| info.osKernelVersion )
                             , ( "Architecture", text <| info.osArchitecture )
+                            , ( "Hostname ", text <| info.hostName )
                             ]
 
                         hardwareData =
