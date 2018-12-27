@@ -26,6 +26,9 @@ type alias DockerInfo =
     , numContainersPaused : Int
     , numContainersStopped : Int
     , numImages : Int
+    , osType : String
+    , os : String
+    , kernelVersion : String
     , daemonID : String
     , driver : String
     }
@@ -39,6 +42,9 @@ dockerInfoDecoder =
         |> required "ContainersPaused" Decode.int
         |> required "ContainersStopped" Decode.int
         |> required "Images" Decode.int
+        |> required "OSType" Decode.string
+        |> required "OperatingSystem" Decode.string
+        |> required "KernelVersion" Decode.string
         |> required "ID" Decode.string
         |> required "Driver" Decode.string
 
@@ -119,7 +125,9 @@ viewOSSection info =
                 ]
 
         tableData =
-            [ ( "Daemon ID", info.daemonID )
+            [ ( "Operating system type", info.osType )
+            , ( "Operating system", info.os )
+            , ( "Kernel version", info.kernelVersion )
             ]
 
         osTable : Html Msg
@@ -138,6 +146,35 @@ viewOSSection info =
         ]
 
 
+viewServerSection : DockerInfo -> Html Msg
+viewServerSection info =
+    let
+        tableRow ( col1, col2 ) =
+            Table.tr []
+                [ Table.th [] [ text col1 ]
+                , Table.td [] [ text col2 ]
+                ]
+
+        tableData =
+            [ ( "Docker daemon ID ", info.daemonID )
+            ]
+
+        serverTable : Html Msg
+        serverTable =
+            Table.table
+                { options = [ Table.striped, Table.hover, Table.small ]
+                , thead =
+                    Table.simpleThead []
+                , tbody =
+                    Table.tbody [] (List.map tableRow tableData)
+                }
+    in
+    div []
+        [ h5 [] [ text "Server" ]
+        , serverTable
+        ]
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -148,6 +185,7 @@ view model =
                     List.map (\f -> f info)
                         [ viewContainersSection
                         , viewOSSection
+                        , viewServerSection
                         ]
 
                 Nothing ->
