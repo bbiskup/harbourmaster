@@ -4,6 +4,7 @@ module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, upd
 
 import Bootstrap.Table as Table
 import Html exposing (Html, div, h1, h5, text)
+import Html.Attributes exposing (style)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -105,8 +106,8 @@ viewSection info title data =
     let
         tableRow ( col1, col2 ) =
             Table.tr []
-                [ Table.th [] [ text col1 ]
-                , Table.td [] [ text col2 ]
+                [ Table.th [ Table.cellAttr (style "width" "20%") ] [ text col1 ]
+                , Table.td [ Table.cellAttr (style "width" "80%") ] [ text col2 ]
                 ]
 
         sectionTable : Html Msg
