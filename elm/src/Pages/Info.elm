@@ -24,25 +24,25 @@ type Msg
 
 type alias DockerInfo =
     { -- Containers & images
-      numContainersRunning : Int
-    , numContainersPaused : Int
-    , numContainersStopped : Int
-    , numImages : Int
+      containersNumRunning : Int
+    , containersNumPaused : Int
+    , containersNumStopped : Int
+    , imagesNum : Int
 
     -- OS
     , osType : String
     , os : String
-    , kernelVersion : String
-    , architecture : String
+    , osKernelVersion : String
+    , osArchitecture : String
 
     -- Hardware
-    , numCPUs : Int
-    , memTotal : Int
+    , hwNumCPUs : Int
+    , hwMemTotal : Int
 
     -- Server
-    , daemonID : String
+    , serverDaemonID : String
     , serverVersion : String
-    , driver : String
+    , serverDriver : String
     }
 
 
@@ -137,25 +137,25 @@ view model =
                 Just info ->
                     let
                         containersData =
-                            [ ( "# running", String.fromInt info.numContainersRunning )
-                            , ( "# stopped", String.fromInt info.numContainersStopped )
-                            , ( "# paused", String.fromInt info.numContainersPaused )
+                            [ ( "# running", String.fromInt info.containersNumRunning )
+                            , ( "# stopped", String.fromInt info.containersNumStopped )
+                            , ( "# paused", String.fromInt info.containersNumPaused )
                             ]
 
                         osData =
                             [ ( "Operating system type", info.osType )
                             , ( "Operating system", info.os )
-                            , ( "Kernel version", info.kernelVersion )
-                            , ( "Architecture", info.architecture )
+                            , ( "Kernel version", info.osKernelVersion )
+                            , ( "Architecture", info.osArchitecture )
                             ]
 
                         hardwareData =
-                            [ ( "# of CPUs", String.fromInt info.numCPUs )
-                            , ( "Memory (MiB)", String.fromInt <| bytesToMiB info.memTotal )
+                            [ ( "# of CPUs", String.fromInt info.hwNumCPUs )
+                            , ( "Memory (MiB)", String.fromInt <| bytesToMiB info.hwMemTotal )
                             ]
 
                         serverData =
-                            [ ( "Docker daemon ID ", info.daemonID )
+                            [ ( "Docker daemon ID ", info.serverDaemonID )
                             , ( "Version ", info.serverVersion )
                             ]
                     in
