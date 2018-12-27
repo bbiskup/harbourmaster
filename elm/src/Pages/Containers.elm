@@ -20,6 +20,7 @@ type alias DockerContainer =
     , names : List String
     , image : String
     , status : String
+    , command : String
     }
 
 
@@ -34,6 +35,7 @@ dockerContainerDecoder =
         |> required "Names" (Decode.list Decode.string)
         |> required "Image" Decode.string
         |> required "Status" Decode.string
+        |> required "Command" Decode.string
 
 
 dockerContainersDecoder : Decode.Decoder DockerContainers
@@ -97,6 +99,7 @@ viewContainers containers =
                 [ Table.th [] [ text "Name" ]
                 , Table.th [] [ text "Image" ]
                 , Table.th [] [ text "Status" ]
+                , Table.th [] [ text "Command" ]
                 ]
         , tbody =
             Table.tbody
@@ -115,6 +118,7 @@ viewContainerRow container =
         [ Table.td [] [ a [ href <| containerPath container.id ] [ containerName ] ]
         , Table.td [] [ text container.image ]
         , Table.td [] [ text container.status ]
+        , Table.td [] [ code [] [ text container.command ] ]
         ]
 
 
