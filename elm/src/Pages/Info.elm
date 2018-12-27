@@ -5,7 +5,7 @@ module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, upd
 import Bootstrap.Table as Table
 import Dict exposing (Dict)
 import Html exposing (Html, b, div, h1, h5, li, p, text, ul)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class, style)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -150,12 +150,12 @@ viewPlugins plugins =
                         Nothing ->
                             "-"
             in
-            p []
+            li []
                 [ b [] [ text <| pluginSection ++ ": " ]
                 , text pluginsStr
                 ]
     in
-    ul [] (List.map renderPluginSection <| Dict.toList plugins)
+    ul [ class "harbourmaster-plugin-list" ] (List.map renderPluginSection <| Dict.toList plugins)
 
 
 view : Model -> Html Msg

@@ -14,6 +14,11 @@ body{
     padding-left: 0;
 }
 
+.harbourmaster-plugin-list{
+    list-style-type: none;
+    padding-left: 0;
+}
+
 .harbourmaster-nav-link-icon{
     padding-left: 2px;
     padding-right: 5px;
