@@ -81,7 +81,7 @@ viewContainersSection info =
     let
         tableRow ( col1, col2 ) =
             Table.tr []
-                [ Table.td [] [ text col1 ]
+                [ Table.th [] [ text col1 ]
                 , Table.td [] [ text col2 ]
                 ]
 
