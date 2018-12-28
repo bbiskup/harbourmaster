@@ -9,12 +9,13 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Html exposing (..)
-import Html.Attributes exposing (href)
+import Html.Attributes exposing (href, title)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
 import Json.Encode as Encode
 import Routes exposing (containerPath)
+import String.Extra exposing (ellipsis)
 
 
 {-| Run state of a Docker container
@@ -250,6 +251,11 @@ viewContainerRow container =
     let
         containerName =
             text <| containerNameOrId container
+
+        -- the command line could potentially be very long
+        commandEllipsis : String
+        commandEllipsis =
+            ellipsis 30 container.command
     in
     Table.tr []
         [ Table.td [] [ a [ href <| containerPath container.id ] [ containerName ] ]
@@ -257,7 +263,7 @@ viewContainerRow container =
         , Table.td []
             [ text <| showRunState container.state ]
         , Table.td [] [ text container.status ]
-        , Table.td [] [ code [] [ text container.command ] ]
+        , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
         ]
 
 
