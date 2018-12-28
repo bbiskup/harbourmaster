@@ -1,5 +1,9 @@
 
-= Candidate UI Libs
-* (Material Components for Elm)[https://github.com/aforemny/elm-mdc]
-  * Demo: https://aforemny.github.io/elm-mdc/
-  * possible risk of becoming obsolete (Google
+= UI
+
+== Container list
+
+- show run state in color
+- sort by date?
+- allow filtering by name (and other columns?)
+
