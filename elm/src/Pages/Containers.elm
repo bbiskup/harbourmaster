@@ -259,7 +259,7 @@ viewContainerRow container =
     in
     Table.tr []
         [ Table.td [] [ a [ href <| containerPath container.id ] [ containerName ] ]
-        , Table.td [] [ text container.image ]
+        , Table.td [ Table.cellAttr <| title container.image ] [ text <| ellipsis 40 container.image ]
         , Table.td []
             [ text <| showRunState container.state ]
         , Table.td [] [ text container.status ]
