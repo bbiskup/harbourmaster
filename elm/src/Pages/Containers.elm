@@ -9,7 +9,7 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Html exposing (..)
-import Html.Attributes exposing (href, title)
+import Html.Attributes exposing (class, href, title)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -166,7 +166,7 @@ init =
     let
         model =
             { dockerContainers = Nothing
-            , runStates = [ Running ]
+            , runStates = [ Running, Paused, Restarting ]
             , serverError = ""
             }
     in
@@ -256,12 +256,16 @@ viewContainerRow container =
         commandEllipsis : String
         commandEllipsis =
             ellipsis 30 container.command
+
+        runStateText : String
+        runStateText =
+            showRunState container.state
     in
     Table.tr []
         [ Table.td [] [ a [ href <| containerPath container.id ] [ containerName ] ]
-        , Table.td [ Table.cellAttr <| title container.image ] [ text <| ellipsis 40 container.image ]
-        , Table.td []
-            [ text <| showRunState container.state ]
+        , Table.td [ Table.cellAttr <| title container.image ] [ text <| ellipsis 30 container.image ]
+        , Table.td [ Table.cellAttr <| class ("harbourmaster-runstate-" ++ runStateText) ]
+            [ text <| runStateText ]
         , Table.td [] [ text container.status ]
         , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
         ]

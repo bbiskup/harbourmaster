@@ -28,6 +28,27 @@ body{
     color: lightblue;
 }
 
+.harbourmaster-runstate-reated,
+.harbourmaster-runstate-running{
+    color: green;
+}
+
+.harbourmaster-runstate-restarting,
+.harbourmaster-runstate-dead{
+    color: red;
+}
+
+.harbourmaster-runstate-removing,
+{
+    color: orange;
+}
+
+.harbourmaster-runstate-paused,
+.harbourmaster-runstate-exited,
+{
+    color: gray;
+}
+
 .breadcrumb{
     padding: 3px 3px;
     margin: 3px 0px;
