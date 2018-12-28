@@ -112,8 +112,8 @@ update msg model =
             ( model, getDockerInfo )
 
 
-viewSection : DockerInfo -> String -> List ( String, Html Msg ) -> Html Msg
-viewSection info title data =
+viewSection : String -> List ( String, Html Msg ) -> Html Msg
+viewSection title data =
     let
         tableRow : ( String, Html Msg ) -> Table.Row Msg
         tableRow ( col1, col2 ) =
@@ -193,7 +193,7 @@ view model =
                             , ( "Plugins ", viewPlugins info.plugins )
                             ]
                     in
-                    List.map (\( title, data ) -> viewSection info title data)
+                    List.map (\( title, data ) -> viewSection title data)
                         [ ( "Containers", containersData )
                         , ( "Operating system", osData )
                         , ( "Hardware", hardwareData )
