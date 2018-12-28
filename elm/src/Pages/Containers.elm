@@ -13,6 +13,7 @@ import Html.Attributes exposing (href)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
+import Json.Encode as Encode
 import Routes exposing (containerPath)
 
 
@@ -124,10 +125,24 @@ showRunState runState =
             "dead"
 
 
-getDockerContainers : Cmd Msg
-getDockerContainers =
+{-| Create a run state filter for Docker engine /containers endpoint
+-}
+createContainersFilter : List RunState -> Encode.Value
+createContainersFilter runStates =
+    Encode.object
+        [ ( "status", Encode.list Encode.string (List.map showRunState runStates) ) ]
+
+
+getDockerContainers : Model -> Cmd Msg
+getDockerContainers model =
+    let
+        filterQuery : String
+        filterQuery =
+            createContainersFilter model.runStates
+                |> Encode.encode 0
+    in
     Http.get
-        { url = "/api/docker-engine/?url=/containers/json"
+        { url = "/api/docker-engine/?url=/containers/json?filters=" ++ filterQuery
         , expect = Http.expectJson GotDockerContainers dockerContainersDecoder
         }
 
@@ -147,11 +162,15 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ( { dockerContainers = Nothing
-      , runStates = [ Running ]
-      , serverError = ""
-      }
-    , getDockerContainers
+    let
+        model =
+            { dockerContainers = Nothing
+            , runStates = [ Running ]
+            , serverError = ""
+            }
+    in
+    ( model
+    , getDockerContainers model
     )
 
 
@@ -179,7 +198,7 @@ update msg model =
             ( { model | serverError = "Server error" }, Cmd.none )
 
         GetDockerContainers ->
-            ( model, getDockerContainers )
+            ( model, getDockerContainers model )
 
         ToggleRunStateFilter runState checked ->
             let
@@ -191,7 +210,11 @@ update msg model =
                     else
                         removeRunState model.runStates runState
             in
-            ( { model | runStates = newRunStates }, Cmd.none )
+            let
+                newModel =
+                    { model | runStates = newRunStates }
+            in
+            ( newModel, getDockerContainers newModel )
 
 
 containerNameOrId : DockerContainer -> String
