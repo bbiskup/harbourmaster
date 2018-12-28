@@ -38,12 +38,12 @@ body{
     color: red;
 }
 
+.harbourmaster-runstate-paused,
 .harbourmaster-runstate-removing
 {
     color: orange;
 }
 
-.harbourmaster-runstate-paused,
 .harbourmaster-runstate-exited
 {
     color: gray;
