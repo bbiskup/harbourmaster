@@ -3,6 +3,7 @@ module Pages.Containers exposing (Model, Msg, init, subscriptions, update, view)
 {-| Container list view
 -}
 
+import Bootstrap.Form as Form
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
@@ -26,6 +27,11 @@ type RunState
     | Paused
     | Exited
     | Dead
+
+
+allRunStates : List RunState
+allRunStates =
+    [ Created, Restarting, Running, Removing, Paused, Exited, Dead ]
 
 
 {-| Short information on Docker container, as returned by /containers/json endpoint
@@ -128,6 +134,7 @@ getDockerContainers =
 
 type alias Model =
     { dockerContainers : Maybe DockerContainers
+    , runStates : List RunState
     , serverError : String
     }
 
@@ -135,11 +142,31 @@ type alias Model =
 type Msg
     = GetDockerContainers
     | GotDockerContainers (Result Http.Error DockerContainers)
+    | ToggleRunStateFilter RunState Bool
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { dockerContainers = Nothing, serverError = "" }, getDockerContainers )
+    ( { dockerContainers = Nothing
+      , runStates = [ Running ]
+      , serverError = ""
+      }
+    , getDockerContainers
+    )
+
+
+addRunState : List RunState -> RunState -> List RunState
+addRunState runStates runState =
+    if List.member runState runStates then
+        runStates
+
+    else
+        runState :: runStates
+
+
+removeRunState : List RunState -> RunState -> List RunState
+removeRunState runStates runState =
+    List.filter ((/=) runState) runStates
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -153,6 +180,18 @@ update msg model =
 
         GetDockerContainers ->
             ( model, getDockerContainers )
+
+        ToggleRunStateFilter runState checked ->
+            let
+                newRunStates : List RunState
+                newRunStates =
+                    if checked then
+                        addRunState model.runStates runState
+
+                    else
+                        removeRunState model.runStates runState
+            in
+            ( { model | runStates = newRunStates }, Cmd.none )
 
 
 containerNameOrId : DockerContainer -> String
@@ -210,10 +249,24 @@ view model =
 
                 Nothing ->
                     text "No containers"
+
+        isChecked : RunState -> Bool
+        isChecked runState =
+            List.member runState model.runStates
+
+        runStateCheckbox : RunState -> Html Msg
+        runStateCheckbox runState =
+            Checkbox.checkbox
+                [ Checkbox.inline
+                , Checkbox.onCheck (ToggleRunStateFilter runState)
+                , Checkbox.checked <| isChecked runState
+                ]
+                (showRunState runState)
     in
     Grid.row []
         [ Grid.col [ Col.xs11 ]
             [ h1 [] [ text "Containers" ]
+            , Form.form [] (List.map runStateCheckbox allRunStates)
             , content
             ]
         ]
