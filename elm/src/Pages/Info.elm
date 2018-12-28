@@ -9,7 +9,7 @@ import Html.Attributes exposing (class, style)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
-import Util exposing (bytesToMiB)
+import Util exposing (bytesToMiB, viewSection)
 
 
 type alias Model =
@@ -110,32 +110,6 @@ update msg model =
 
         GetDockerInfo ->
             ( model, getDockerInfo )
-
-
-viewSection : String -> List ( String, Html Msg ) -> Html Msg
-viewSection title data =
-    let
-        tableRow : ( String, Html Msg ) -> Table.Row Msg
-        tableRow ( col1, col2 ) =
-            Table.tr []
-                [ Table.th [ Table.cellAttr <| style "width" "20%" ] [ text col1 ]
-                , Table.td [ Table.cellAttr <| style "width" "80%" ] [ col2 ]
-                ]
-
-        sectionTable : Html Msg
-        sectionTable =
-            Table.table
-                { options = [ Table.striped, Table.hover, Table.small ]
-                , thead =
-                    Table.simpleThead []
-                , tbody =
-                    Table.tbody [] (List.map tableRow data)
-                }
-    in
-    div []
-        [ h5 [] [ text title ]
-        , sectionTable
-        ]
 
 
 viewPlugins : Plugins -> Html Msg
