@@ -40,6 +40,8 @@ type DockerImages
     = DockerImages (List DockerImage)
 
 
+{-| Decoder for a single docker image record of endpoint /images
+-}
 dockerImageDecoder : Decode.Decoder DockerImage
 dockerImageDecoder =
     Decode.succeed DockerImage
@@ -49,12 +51,16 @@ dockerImageDecoder =
         |> required "Size" Decode.int
 
 
+{-| Decoder for a list of single docker image record of endpoint /images
+-}
 dockerImagesDecoder : Decode.Decoder DockerImages
 dockerImagesDecoder =
     Decode.map DockerImages <|
         Decode.list dockerImageDecoder
 
 
+{-| Fetch a list of Docker images
+-}
 getDockerImages : Cmd Msg
 getDockerImages =
     Http.get
@@ -103,6 +109,8 @@ update msg model =
             )
 
 
+{-| Combination of repo tags (if any, and if not "<none>:<none>"), or image ID as fallback
+-}
 imageNamesOrId : DockerImage -> String
 imageNamesOrId image =
     let
@@ -117,11 +125,14 @@ imageNamesOrId image =
             image.id
 
 
+{-| Create table of all Docker images, possibly filtered by whether the image has a proper name
+-}
 viewImages : List DockerImage -> Bool -> Html Msg
 viewImages images filterUnnamedImages =
     let
         filteredImages =
             if filterUnnamedImages then
+                -- exclude anonymous layers
                 List.filter (\image -> not <| String.startsWith "sha256:" <| imageNamesOrId image) images
 
             else
@@ -144,6 +155,8 @@ viewImages images filterUnnamedImages =
         }
 
 
+{-| Create a table row, corresponding to a single Docker image
+-}
 viewImageRow : DockerImage -> Table.Row Msg
 viewImageRow image =
     let
