@@ -12,4 +12,4 @@ ipdb = "==0.11"
 flask-restplus = "==0.12.1"
 
 [requires]
-python_version = "3.7"
+python_version = "3.5.2"
