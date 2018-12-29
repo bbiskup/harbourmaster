@@ -1,0 +1,15 @@
+language: cpp
+sudo: required
+services:
+  - docker
+dist: trusty
+
+before_script:
+  - echo $TRAVIS_BUILD_DIR
+  - docker --version
+  - docker-compose --version
+
+script:
+  - make build-debug
+  - make test
+
