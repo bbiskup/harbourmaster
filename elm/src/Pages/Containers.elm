@@ -284,8 +284,8 @@ viewContainerRow container =
         runStateText =
             showRunState container.state
 
-        renderAction : String -> String -> String -> Button.Option Msg -> Action -> Html Msg
-        renderAction containerId buttonTitle iconClass buttonKind action =
+        renderActionButton : String -> String -> String -> Button.Option Msg -> Action -> Html Msg
+        renderActionButton containerId buttonTitle iconClass buttonKind action =
             Button.button
                 [ Button.small
                 , buttonKind
@@ -316,8 +316,8 @@ viewContainerRow container =
         , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
         , Table.td []
             [ div []
-                [ renderAction container.id "Pause" "pause-circle" Button.primary Pause
-                , renderAction container.id "Stop" "times-circle" Button.danger Stop
+                [ renderActionButton container.id "Pause" "pause-circle" Button.primary Pause
+                , renderActionButton container.id "Stop" "times-circle" Button.danger Stop
                 ]
             ]
         ]
