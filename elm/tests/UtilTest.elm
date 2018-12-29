@@ -18,4 +18,6 @@ byteToMiBSuite =
             \_ -> Expect.equal (Sut.bytesToMiB <| 1024 ^ 2 - 1) 0
         , test "Rounding down to 1 MiB" <|
             \_ -> Expect.equal (Sut.bytesToMiB 1024 ^ 2 + 1) 1
+        , test "Negative size gets normalized to 0" <|
+            \_ -> Expect.equal (Sut.bytesToMiB -1) 0
         ]

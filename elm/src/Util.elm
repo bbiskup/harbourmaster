@@ -12,10 +12,14 @@ import Html.Attributes exposing (style)
 -}
 bytesToMiB : Int -> Int
 bytesToMiB bytes =
-    bytes
-        |> toFloat
-        |> (*) (1 / 1024 / 1024)
-        |> floor
+    if bytes < 0 then
+        0
+
+    else
+        bytes
+            |> toFloat
+            |> (*) (1 / 1024 / 1024)
+            |> floor
 
 
 {-| Get last element of List, or Nothing if the ist is empty
