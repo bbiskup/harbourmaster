@@ -284,15 +284,20 @@ viewContainerRow container =
         runStateText =
             showRunState container.state
 
-        renderAction : String -> String -> Button.Option Msg -> Action -> Html Msg
-        renderAction containerId buttonText buttonKind action =
+        renderAction : String -> String -> String -> Button.Option Msg -> Action -> Html Msg
+        renderAction containerId buttonTitle iconClass buttonKind action =
             Button.button
                 [ Button.small
                 , buttonKind
                 , Button.attrs [ Spacing.ml1 ]
                 , Button.onClick (InvokeAction action containerId)
                 ]
-                [ text buttonText ]
+                [ i
+                    [ class ("fas fa-" ++ iconClass)
+                    , title buttonTitle
+                    ]
+                    []
+                ]
     in
     Table.tr []
         [ Table.td []
@@ -311,8 +316,8 @@ viewContainerRow container =
         , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
         , Table.td []
             [ div []
-                [ renderAction container.id "Pause" Button.warning Pause
-                , renderAction container.id "Stop" Button.danger Stop
+                [ renderAction container.id "Pause" "pause-circle" Button.primary Pause
+                , renderAction container.id "Stop" "times-circle" Button.danger Stop
                 ]
             ]
         ]
