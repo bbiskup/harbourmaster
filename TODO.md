@@ -1,12 +1,17 @@
 
 = UI
 
+== Info page
+
+- link from '# of xxx (containers)' to container list with that particular filter applied?
+
 == Container list
 
 - show run state in color
 - sort by date?
 - allow filtering by name (and other columns?)
 - link from image column to image page
+
 
 == Charts
 
