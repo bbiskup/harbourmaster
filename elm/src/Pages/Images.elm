@@ -179,11 +179,18 @@ viewImageRow image =
             image.size
                 |> bytesToMiB
                 |> String.fromInt
+
+        imageNameTitle : String
+        imageNameTitle =
+            imageName
+                ++ "("
+                ++ image.id
+                ++ ")"
     in
     Table.tr []
         [ Table.td []
             [ a
-                [ title imageName
+                [ title imageNameTitle
                 , href <| imagePath image.id
                 ]
                 [ text imageName ]
