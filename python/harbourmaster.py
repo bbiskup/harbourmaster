@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, Blueprint, redirect
 from flask_restplus import Resource, Api
 import requests
@@ -42,5 +43,9 @@ class DockerEngine(Resource):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=9000)
+    host = sys.argv[1] if len(sys.argv) == 2 else 'localhost'
+
+    app.run(debug=True,
+            host=host,
+            port=9000)
 
