@@ -9,6 +9,13 @@ services:
         volumes:
             - .:/code
 
+            # Elm packages etc.
+            - .docker/.elm:/root/.elm
+
+            # pip & pipenv
+            - .docker/.share:/root/.share
+            - .docker/.local:/root/.local
+
             # Access to Docker daemon on host
             - /usr/bin/docker:/usr/bin/docker
             - /var/run/docker.sock:/var/run/docker.sock
