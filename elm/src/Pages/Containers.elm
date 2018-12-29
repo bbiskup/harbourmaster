@@ -275,7 +275,10 @@ viewContainerRow container =
             [ a [ href <| containerPath container.id ] [ text containerName ]
             ]
         , Table.td [ Table.cellAttr <| title container.image ]
-            [ a [ title containerName, href <| imagePath container.imageId ]
+            [ a
+                [ title containerName
+                , href <| imagePath container.imageId
+                ]
                 [ text <| ellipsis 30 container.image ]
             ]
         , Table.td [ Table.cellAttr <| class ("harbourmaster-runstate-" ++ runStateText) ]
