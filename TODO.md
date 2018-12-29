@@ -7,3 +7,8 @@
 - sort by date?
 - allow filtering by name (and other columns?)
 
+== Charts
+
+- Pie chart (or similar): containers by size
+- Pie chart (or similar): images by size
+
