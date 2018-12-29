@@ -1,8 +1,9 @@
-module UtilTest exposing (byteToMiBSuite, lastElemSuite)
+module UtilTest exposing (byteToMiBSuite, lastElemSuite, timestampFormatterSuite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
+import Time
 import Util as Sut
 
 
@@ -36,4 +37,20 @@ lastElemSuite =
         , test "Empty list should return Nothing" <|
             \_ ->
                 Expect.equal (Sut.lastElem []) Nothing
+        ]
+
+
+timestampFormatterSuite : Test
+timestampFormatterSuite =
+    describe "Function timestampFormatter" <|
+        [ test "Epoch"
+            (\_ ->
+                let
+                    timestamp =
+                        0
+                            |> Time.millisToPosix
+                            |> Sut.timestampFormatter Time.utc
+                in
+                Expect.equal timestamp "1970-01-01 12:00"
+            )
         ]
