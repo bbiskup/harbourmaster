@@ -22,3 +22,5 @@ test: test-frontend
 test-frontend:
 	./docker-cmd.sh "cd elm && elm-test"
 
+test-frontend-watch:
+	./docker-cmd.sh "cd elm && elm-test --watch"
