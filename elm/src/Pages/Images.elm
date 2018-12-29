@@ -7,7 +7,7 @@ import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
-import Date
+import DateFormat
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (checked, href, title, type_)
@@ -36,7 +36,7 @@ type alias DockerImage =
     , labels : Dict String String
     , size : Int
     , virtualSize : Int
-    , created : Date.Date
+    , created : Time.Posix
     }
 
 
@@ -44,9 +44,24 @@ type DockerImages
     = DockerImages (List DockerImage)
 
 
-timestampDecoder : Decode.Decoder Date.Date
+timestampFormatter : Time.Zone -> Time.Posix -> String
+timestampFormatter =
+    DateFormat.format
+        [ DateFormat.yearNumber
+        , DateFormat.text "-"
+        , DateFormat.monthFixed
+        , DateFormat.text "-"
+        , DateFormat.dayOfMonthFixed
+        , DateFormat.text " "
+        , DateFormat.hourFixed
+        , DateFormat.text ":"
+        , DateFormat.minuteFixed
+        ]
+
+
+timestampDecoder : Decode.Decoder Time.Posix
 timestampDecoder =
-    Decode.map (Date.fromPosix Time.utc << Time.millisToPosix << (*) 1000) Decode.int
+    Decode.map (Time.millisToPosix << (*) 1000) Decode.int
 
 
 {-| Decoder for a single docker image record of endpoint /images
@@ -208,8 +223,8 @@ viewImageRow image =
                 ]
                 [ text imageName ]
             ]
+        , Table.td [] [ text <| timestampFormatter Time.utc image.created ]
         , Table.td [] [ text <| sizeStr image.size ]
-        , Table.td [] [ text <| Date.toIsoString image.created ]
         , Table.td [] [ text <| sizeStr image.virtualSize ]
         ]
 
