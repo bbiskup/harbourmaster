@@ -45,7 +45,9 @@ type Msg
 
 init : String -> ( Model, Cmd Msg )
 init id =
-    ( { dockerContainer = Nothing, serverError = "" }, getDockerContainer id )
+    ( { dockerContainer = Nothing, serverError = "" }
+    , getDockerContainer id
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -72,7 +74,14 @@ view model =
         content =
             case model.dockerContainer of
                 Just dockerContainer ->
-                    div [] [ text <| "Docker container: " ++ dockerContainer.name ++ " (" ++ dockerContainer.id ++ ")" ]
+                    div []
+                        [ text <|
+                            "Docker container: "
+                                ++ dockerContainer.name
+                                ++ " ("
+                                ++ dockerContainer.id
+                                ++ ")"
+                        ]
 
                 Nothing ->
                     text "No container"

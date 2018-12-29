@@ -84,7 +84,12 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ( { dockerImages = Nothing, serverError = "", filterUnnamedImages = True }, getDockerImages )
+    ( { dockerImages = Nothing
+      , serverError = ""
+      , filterUnnamedImages = True
+      }
+    , getDockerImages
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -176,7 +181,13 @@ viewImageRow image =
                 |> String.fromInt
     in
     Table.tr []
-        [ Table.td [] [ a [ title imageName, href <| imagePath image.id ] [ text imageName ] ]
+        [ Table.td []
+            [ a
+                [ title imageName
+                , href <| imagePath image.id
+                ]
+                [ text imageName ]
+            ]
         , Table.td [] [ text sizeStr ]
         ]
 

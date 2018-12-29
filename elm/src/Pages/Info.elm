@@ -131,7 +131,8 @@ viewPlugins plugins =
                 , text pluginsStr
                 ]
     in
-    ul [ class "harbourmaster-plugin-list" ] (List.map renderPluginSection <| Dict.toList plugins)
+    ul [ class "harbourmaster-plugin-list" ]
+        (List.map renderPluginSection <| Dict.toList plugins)
 
 
 view : Model -> Html Msg

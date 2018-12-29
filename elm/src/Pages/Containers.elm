@@ -133,7 +133,10 @@ showRunState runState =
 createContainersFilter : List RunState -> Encode.Value
 createContainersFilter runStates =
     Encode.object
-        [ ( "status", Encode.list Encode.string (List.map showRunState runStates) ) ]
+        [ ( "status"
+          , Encode.list Encode.string (List.map showRunState runStates)
+          )
+        ]
 
 
 getDockerContainers : Model -> Cmd Msg
@@ -195,10 +198,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GotDockerContainers (Ok dockerContainers) ->
-            ( { model | dockerContainers = Just dockerContainers }, Cmd.none )
+            ( { model | dockerContainers = Just dockerContainers }
+            , Cmd.none
+            )
 
         GotDockerContainers (Err error) ->
-            ( { model | serverError = "Server error" }, Cmd.none )
+            ( { model | serverError = "Server error" }
+            , Cmd.none
+            )
 
         GetDockerContainers ->
             ( model, getDockerContainers model )
@@ -264,7 +271,9 @@ viewContainerRow container =
             showRunState container.state
     in
     Table.tr []
-        [ Table.td [] [ a [ href <| containerPath container.id ] [ text containerName ] ]
+        [ Table.td []
+            [ a [ href <| containerPath container.id ] [ text containerName ]
+            ]
         , Table.td [ Table.cellAttr <| title container.image ]
             [ a [ title containerName, href <| imagePath container.imageId ]
                 [ text <| ellipsis 30 container.image ]
