@@ -3,11 +3,13 @@ module Pages.Containers exposing (Model, Msg, init, subscriptions, update, view)
 {-| Container list view
 -}
 
+import Bootstrap.Button as Button
 import Bootstrap.Form as Form
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
+import Bootstrap.Utilities.Spacing as Spacing
 import Html exposing (..)
 import Html.Attributes exposing (class, href, title)
 import Http
@@ -29,6 +31,13 @@ type RunState
     | Paused
     | Exited
     | Dead
+
+
+{-| Actions on a particular container
+-}
+type Action
+    = Pause
+    | Stop
 
 
 allRunStates : List RunState
@@ -164,6 +173,7 @@ type Msg
     = GetDockerContainers
     | GotDockerContainers (Result Http.Error DockerContainers)
     | ToggleRunStateFilter RunState Bool
+    | InvokeAction Action String
 
 
 init : ( Model, Cmd Msg )
@@ -226,6 +236,9 @@ update msg model =
             in
             ( newModel, getDockerContainers newModel )
 
+        InvokeAction action containerId ->
+            Debug.log "Not implemented: debug for InvokeAction" ( model, Cmd.none )
+
 
 containerNameOrId : DockerContainer -> String
 containerNameOrId container =
@@ -247,6 +260,7 @@ viewContainers containers =
                 , Table.th [] [ text "State" ]
                 , Table.th [] [ text "Status" ]
                 , Table.th [] [ text "Command" ]
+                , Table.th [] [ text "Actions" ]
                 ]
         , tbody =
             Table.tbody
@@ -269,6 +283,16 @@ viewContainerRow container =
         runStateText : String
         runStateText =
             showRunState container.state
+
+        renderAction : String -> String -> Button.Option Msg -> Action -> Html Msg
+        renderAction containerId buttonText buttonKind action =
+            Button.button
+                [ Button.small
+                , buttonKind
+                , Button.attrs [ Spacing.ml1 ]
+                , Button.onClick (InvokeAction action containerId)
+                ]
+                [ text buttonText ]
     in
     Table.tr []
         [ Table.td []
@@ -285,6 +309,12 @@ viewContainerRow container =
             [ text <| runStateText ]
         , Table.td [] [ text container.status ]
         , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
+        , Table.td []
+            [ div []
+                [ renderAction container.id "Pause" Button.warning Pause
+                , renderAction container.id "Stop" Button.danger Stop
+                ]
+            ]
         ]
 
 
