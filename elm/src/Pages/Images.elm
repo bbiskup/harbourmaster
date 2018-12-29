@@ -19,12 +19,18 @@ import String.Extra exposing (ellipsis)
 import Util exposing (bytesToMiB)
 
 
+imageNameNone : String
+imageNameNone =
+    "<none>:<none>"
+
+
 
 {- Short information on Docker image, as returned by /images/json endpoint -}
 
 
 type alias DockerImage =
     { id : String
+    , repoTags : List String
     , labels : Dict String String
     , size : Int
     }
@@ -38,6 +44,7 @@ dockerImageDecoder : Decode.Decoder DockerImage
 dockerImageDecoder =
     Decode.succeed DockerImage
         |> required "Id" Decode.string
+        |> required "RepoTags" (Decode.list Decode.string)
         |> optional "Labels" (Decode.dict Decode.string) (Dict.fromList [])
         |> required "Size" Decode.int
 
@@ -98,7 +105,16 @@ update msg model =
 
 imageNameOrId : DockerImage -> String
 imageNameOrId image =
-    Maybe.withDefault image.id <| Dict.get "name" image.labels
+    let
+        actualTags =
+            List.filter (\x -> x /= imageNameNone) image.repoTags
+    in
+    case List.head actualTags of
+        Just tag ->
+            Debug.log "tag" tag
+
+        Nothing ->
+            image.id
 
 
 viewImages : List DockerImage -> Bool -> Html Msg
