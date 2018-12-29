@@ -10,3 +10,9 @@ run-server:
 	
 	# FLASK_APP=harbourmaster.py flask run --port 9000
 	
+
+test: test-frontend
+
+test-frontend:
+	./docker-cmd.sh "cd elm && elm-test"
+
