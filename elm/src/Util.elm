@@ -15,7 +15,7 @@ bytesToMiB bytes =
     bytes
         |> toFloat
         |> (*) (1 / 1024 / 1024)
-        |> round
+        |> floor
 
 
 {-| Get last element of List, or Nothing if the ist is empty
