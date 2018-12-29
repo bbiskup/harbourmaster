@@ -10,7 +10,6 @@
 - show run state in color
 - sort by date?
 - allow filtering by name (and other columns?)
-- link from image column to image page
 
 
 == Charts

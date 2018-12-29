@@ -14,7 +14,7 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
 import Json.Encode as Encode
-import Routes exposing (containerPath)
+import Routes exposing (containerPath, imagePath)
 import String.Extra exposing (ellipsis)
 
 
@@ -42,6 +42,7 @@ type alias DockerContainer =
     { id : String
     , names : List String
     , image : String
+    , imageId : String
     , state : RunState
     , status : String
     , command : String
@@ -58,6 +59,7 @@ dockerContainerDecoder =
         |> required "Id" Decode.string
         |> required "Names" (Decode.list Decode.string)
         |> required "Image" Decode.string
+        |> required "ImageID" Decode.string
         |> required "State" runStateDecoder
         |> required "Status" Decode.string
         |> required "Command" Decode.string
@@ -250,7 +252,7 @@ viewContainerRow : DockerContainer -> Table.Row Msg
 viewContainerRow container =
     let
         containerName =
-            text <| containerNameOrId container
+            containerNameOrId container
 
         -- the command line could potentially be very long
         commandEllipsis : String
@@ -262,8 +264,11 @@ viewContainerRow container =
             showRunState container.state
     in
     Table.tr []
-        [ Table.td [] [ a [ href <| containerPath container.id ] [ containerName ] ]
-        , Table.td [ Table.cellAttr <| title container.image ] [ text <| ellipsis 30 container.image ]
+        [ Table.td [] [ a [ href <| containerPath container.id ] [ text containerName ] ]
+        , Table.td [ Table.cellAttr <| title container.image ]
+            [ a [ title containerName, href <| imagePath container.imageId ]
+                [ text <| ellipsis 30 container.image ]
+            ]
         , Table.td [ Table.cellAttr <| class ("harbourmaster-runstate-" ++ runStateText) ]
             [ text <| runStateText ]
         , Table.td [] [ text container.status ]
