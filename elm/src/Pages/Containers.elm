@@ -298,6 +298,22 @@ viewContainerRow container =
                     ]
                     []
                 ]
+
+        pauseButton =
+            renderActionButton container.id "Pause" "pause-circle" Button.primary Pause
+
+        stopButton =
+            renderActionButton container.id "Stop" "times-circle" Button.danger Stop
+
+        actionButtons =
+            if List.any ((==) container.state) [ Created, Restarting, Running ] then
+                [ stopButton, pauseButton ]
+
+            else if container.state == Paused then
+                [ stopButton ]
+
+            else
+                []
     in
     Table.tr []
         [ Table.td []
@@ -315,10 +331,7 @@ viewContainerRow container =
         , Table.td [] [ text container.status ]
         , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
         , Table.td []
-            [ div []
-                [ renderActionButton container.id "Pause" "pause-circle" Button.primary Pause
-                , renderActionButton container.id "Stop" "times-circle" Button.danger Stop
-                ]
+            [ div [] actionButtons
             ]
         ]
 
