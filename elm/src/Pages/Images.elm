@@ -103,17 +103,17 @@ update msg model =
             )
 
 
-imageNameOrId : DockerImage -> String
-imageNameOrId image =
+imageNamesOrId : DockerImage -> String
+imageNamesOrId image =
     let
         actualTags =
             List.filter (\x -> x /= imageNameNone) image.repoTags
     in
-    case List.head actualTags of
-        Just tag ->
-            Debug.log "tag" tag
+    case actualTags of
+        (h :: t) as tags ->
+            String.join ", " tags
 
-        Nothing ->
+        [] ->
             image.id
 
 
@@ -122,13 +122,13 @@ viewImages images filterUnnamedImages =
     let
         filteredImages =
             if filterUnnamedImages then
-                List.filter (\image -> not <| String.startsWith "sha256:" <| imageNameOrId image) images
+                List.filter (\image -> not <| String.startsWith "sha256:" <| imageNamesOrId image) images
 
             else
                 images
 
         sortedImages =
-            List.sortBy imageNameOrId filteredImages
+            List.sortBy imageNamesOrId filteredImages
     in
     Table.table
         { options = [ Table.striped, Table.hover ]
@@ -149,8 +149,8 @@ viewImageRow image =
     let
         imageName : String
         imageName =
-            imageNameOrId image
-                |> ellipsis 40
+            imageNamesOrId image
+                |> ellipsis 80
 
         sizeStr =
             image.size
