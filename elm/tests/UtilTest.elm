@@ -42,15 +42,21 @@ lastElemSuite =
 
 timestampFormatterSuite : Test
 timestampFormatterSuite =
+    let
+        createTimestamp : Int -> String
+        createTimestamp time =
+            time
+                |> (*) 1000
+                |> Time.millisToPosix
+                |> Sut.timestampFormatter Time.utc
+    in
     describe "Function timestampFormatter" <|
         [ test "Epoch"
             (\_ ->
-                let
-                    timestamp =
-                        0
-                            |> Time.millisToPosix
-                            |> Sut.timestampFormatter Time.utc
-                in
-                Expect.equal timestamp "1970-01-01 12:00"
+                Expect.equal (createTimestamp 0) "1970-01-01 00:00"
+            )
+        , test "2018-05-20T19:17:41Z"
+            (\_ ->
+                Expect.equal (createTimestamp 1526843861) "2018-05-20 19:17"
             )
         ]
