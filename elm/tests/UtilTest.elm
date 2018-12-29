@@ -1,4 +1,4 @@
-module UtilTest exposing (byteToMiBSuite)
+module UtilTest exposing (byteToMiBSuite, lastElemSuite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -20,4 +20,20 @@ byteToMiBSuite =
             \_ -> Expect.equal (Sut.bytesToMiB 1024 ^ 2 + 1) 1
         , test "Negative size gets normalized to 0" <|
             \_ -> Expect.equal (Sut.bytesToMiB -1) 0
+        ]
+
+
+lastElemSuite : Test
+lastElemSuite =
+    describe "Function lastElem" <|
+        [ test "Multiple elements"
+            (\_ ->
+                Expect.equal (Sut.lastElem [ 1, 2, 3 ]) (Just 3)
+            )
+        , test "A single element" <|
+            \_ ->
+                Expect.equal (Sut.lastElem [ 1 ]) (Just 1)
+        , test "Empty list should return Nothing" <|
+            \_ ->
+                Expect.equal (Sut.lastElem []) Nothing
         ]
