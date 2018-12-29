@@ -130,10 +130,15 @@ imageNamesOrId image =
 viewImages : List DockerImage -> Bool -> Html Msg
 viewImages images filterUnnamedImages =
     let
+        isUnnamedImage : DockerImage -> Bool
+        isUnnamedImage image =
+            not <| String.startsWith "sha256:" <| imageNamesOrId image
+
+        filteredImages : List DockerImage
         filteredImages =
             if filterUnnamedImages then
                 -- exclude anonymous layers
-                List.filter (\image -> not <| String.startsWith "sha256:" <| imageNamesOrId image) images
+                List.filter isUnnamedImage images
 
             else
                 images
