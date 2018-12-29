@@ -7,7 +7,6 @@ import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
-import DateFormat
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (checked, href, title, type_)
@@ -18,7 +17,7 @@ import Json.Decode.Pipeline exposing (..)
 import Routes exposing (imagePath, imagesPath)
 import String.Extra exposing (ellipsis)
 import Time
-import Util exposing (bytesToMiB)
+import Util
 
 
 imageNameNone : String
@@ -44,26 +43,6 @@ type DockerImages
     = DockerImages (List DockerImage)
 
 
-timestampFormatter : Time.Zone -> Time.Posix -> String
-timestampFormatter =
-    DateFormat.format
-        [ DateFormat.yearNumber
-        , DateFormat.text "-"
-        , DateFormat.monthFixed
-        , DateFormat.text "-"
-        , DateFormat.dayOfMonthFixed
-        , DateFormat.text " "
-        , DateFormat.hourFixed
-        , DateFormat.text ":"
-        , DateFormat.minuteFixed
-        ]
-
-
-timestampDecoder : Decode.Decoder Time.Posix
-timestampDecoder =
-    Decode.map (Time.millisToPosix << (*) 1000) Decode.int
-
-
 {-| Decoder for a single docker image record of endpoint /images
 -}
 dockerImageDecoder : Decode.Decoder DockerImage
@@ -74,7 +53,7 @@ dockerImageDecoder =
         |> optional "Labels" (Decode.dict Decode.string) (Dict.fromList [])
         |> required "Size" Decode.int
         |> required "VirtualSize" Decode.int
-        |> required "Created" timestampDecoder
+        |> required "Created" Util.timestampDecoder
 
 
 {-| Decoder for a list of single docker image record of endpoint /images
@@ -205,7 +184,7 @@ viewImageRow image =
 
         sizeStr size =
             size
-                |> bytesToMiB
+                |> Util.bytesToMiB
                 |> String.fromInt
 
         imageNameTitle : String
@@ -223,7 +202,7 @@ viewImageRow image =
                 ]
                 [ text imageName ]
             ]
-        , Table.td [] [ text <| timestampFormatter Time.utc image.created ]
+        , Table.td [] [ text <| Util.timestampFormatter Time.utc image.created ]
         , Table.td [] [ text <| sizeStr image.size ]
         , Table.td [] [ text <| sizeStr image.virtualSize ]
         ]

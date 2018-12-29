@@ -1,11 +1,14 @@
-module Util exposing (bytesToMiB, lastElem, viewSection)
+module Util exposing (bytesToMiB, lastElem, timestampDecoder, timestampFormatter, viewSection)
 
 {-| General utilities
 -}
 
 import Bootstrap.Table as Table
+import DateFormat
 import Html exposing (..)
 import Html.Attributes exposing (style)
+import Json.Decode as Decode
+import Time
 
 
 {-| Convert a number of bytes to MiB (Mebibytes), truncating the result to the nearest integer.
@@ -55,3 +58,23 @@ viewSection title data =
         [ h5 [] [ text title ]
         , sectionTable
         ]
+
+
+timestampFormatter : Time.Zone -> Time.Posix -> String
+timestampFormatter =
+    DateFormat.format
+        [ DateFormat.yearNumber
+        , DateFormat.text "-"
+        , DateFormat.monthFixed
+        , DateFormat.text "-"
+        , DateFormat.dayOfMonthFixed
+        , DateFormat.text " "
+        , DateFormat.hourFixed
+        , DateFormat.text ":"
+        , DateFormat.minuteFixed
+        ]
+
+
+timestampDecoder : Decode.Decoder Time.Posix
+timestampDecoder =
+    Decode.map (Time.millisToPosix << (*) 1000) Decode.int
