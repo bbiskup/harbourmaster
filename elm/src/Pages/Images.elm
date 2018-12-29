@@ -7,6 +7,7 @@ import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
+import Date
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (checked, href, title, type_)
@@ -16,6 +17,7 @@ import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
 import Routes exposing (imagePath, imagesPath)
 import String.Extra exposing (ellipsis)
+import Time
 import Util exposing (bytesToMiB)
 
 
@@ -33,11 +35,18 @@ type alias DockerImage =
     , repoTags : List String
     , labels : Dict String String
     , size : Int
+    , virtualSize : Int
+    , created : Date.Date
     }
 
 
 type DockerImages
     = DockerImages (List DockerImage)
+
+
+timestampDecoder : Decode.Decoder Date.Date
+timestampDecoder =
+    Decode.map (Date.fromPosix Time.utc << Time.millisToPosix << (*) 1000) Decode.int
 
 
 {-| Decoder for a single docker image record of endpoint /images
@@ -49,6 +58,8 @@ dockerImageDecoder =
         |> required "RepoTags" (Decode.list Decode.string)
         |> optional "Labels" (Decode.dict Decode.string) (Dict.fromList [])
         |> required "Size" Decode.int
+        |> required "VirtualSize" Decode.int
+        |> required "Created" timestampDecoder
 
 
 {-| Decoder for a list of single docker image record of endpoint /images
@@ -156,7 +167,9 @@ viewImages images filterUnnamedImages =
         , thead =
             Table.simpleThead
                 [ Table.th [] [ text "Name" ]
+                , Table.th [] [ text "Created" ]
                 , Table.th [] [ text "Size (MiB)" ]
+                , Table.th [] [ text "Virtual size (MiB)" ] -- TODO verify unit
                 ]
         , tbody =
             Table.tbody
@@ -175,8 +188,8 @@ viewImageRow image =
             imageNamesOrId image
                 |> ellipsis 80
 
-        sizeStr =
-            image.size
+        sizeStr size =
+            size
                 |> bytesToMiB
                 |> String.fromInt
 
@@ -195,7 +208,9 @@ viewImageRow image =
                 ]
                 [ text imageName ]
             ]
-        , Table.td [] [ text sizeStr ]
+        , Table.td [] [ text <| sizeStr image.size ]
+        , Table.td [] [ text <| Date.toIsoString image.created ]
+        , Table.td [] [ text <| sizeStr image.virtualSize ]
         ]
 
 
