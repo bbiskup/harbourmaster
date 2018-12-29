@@ -1,0 +1,25 @@
+version: "2"
+services:
+    harbourmaster_dev:
+        restart: "no"
+        privileged: yes
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - .:/code
+
+            # Access to Docker daemon on host
+            - /usr/bin/docker:/usr/bin/docker
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - default
+        ports:
+            - "9000:9000"
+        stdin_open: true
+        tty: true
+        entrypoint:
+            - bash
+            - -c
+        command: bash
+
