@@ -321,6 +321,31 @@ viewContainers containers =
         }
 
 
+renderActionButton : String -> String -> String -> Button.Option Msg -> Action -> Html Msg
+renderActionButton containerId buttonTitle iconClass buttonKind action =
+    Button.button
+        [ Button.small
+        , buttonKind
+        , Button.attrs [ Spacing.ml1 ]
+        , Button.onClick (InvokeAction action containerId)
+        ]
+        [ i
+            [ class ("fas fa-" ++ iconClass)
+            , title buttonTitle
+            ]
+            []
+        ]
+
+
+actionButtons : List ( List RunState, Html Msg )
+actionButtons =
+    [ ( [ Paused ], renderActionButton container.id "Restart" "play-circle" Button.success Restart )
+    , ( [ Running ], renderActionButton container.id "Pause" "pause-circle" Button.primary Pause )
+    , ( [ Created, Restarting, Running ], renderActionButton container.id "Stop" "stop-circle" Button.secondary Stop )
+    , ( [ Exited, Dead ], renderActionButton container.id "Remove" "times-circle" Button.danger Remove )
+    ]
+
+
 viewContainerRow : DockerContainer -> Table.Row Msg
 viewContainerRow container =
     let
@@ -335,29 +360,6 @@ viewContainerRow container =
         runStateText : String
         runStateText =
             showRunState container.state
-
-        renderActionButton : String -> String -> String -> Button.Option Msg -> Action -> Html Msg
-        renderActionButton containerId buttonTitle iconClass buttonKind action =
-            Button.button
-                [ Button.small
-                , buttonKind
-                , Button.attrs [ Spacing.ml1 ]
-                , Button.onClick (InvokeAction action containerId)
-                ]
-                [ i
-                    [ class ("fas fa-" ++ iconClass)
-                    , title buttonTitle
-                    ]
-                    []
-                ]
-
-        actionButtons : List ( List RunState, Html Msg )
-        actionButtons =
-            [ ( [ Paused ], renderActionButton container.id "Restart" "play-circle" Button.success Restart )
-            , ( [ Running ], renderActionButton container.id "Pause" "pause-circle" Button.primary Pause )
-            , ( [ Created, Restarting, Running ], renderActionButton container.id "Stop" "stop-circle" Button.secondary Stop )
-            , ( [ Exited, Dead ], renderActionButton container.id "Remove" "times-circle" Button.danger Remove )
-            ]
 
         matchingActionButtons : List (Html Msg)
         matchingActionButtons =
