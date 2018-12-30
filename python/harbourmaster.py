@@ -35,11 +35,21 @@ class DockerEngine(Resource):
     """Endpoint to communicate with Docker engine (via Unix domain socket)"""
 
     def get(self, **kwargs):
+        return self._handle_request(session.get, **kwargs)
+
+    def post(self, **kwargs):
+        return self._handle_request(session.post, **kwargs)
+    
+    def _handle_request(self, handler, **kwargs):
         args = docker_engine_parser.parse_args()
         url = args['url']
         print('URL: %s', url)
-        r = session.get('http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)) 
-        return r.json()
+        r = handler('http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)) 
+
+        if r.text:
+            return r.json()
+        else:
+            return {}
 
 
 if __name__ == '__main__':

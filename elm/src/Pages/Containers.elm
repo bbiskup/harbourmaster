@@ -21,6 +21,14 @@ import String.Extra exposing (ellipsis)
 import Util exposing (createEngineApiUrl)
 
 
+type Msg
+    = GetDockerContainers
+    | GotDockerContainers (Result Http.Error DockerContainers)
+    | ToggleRunStateFilter RunState Bool
+    | InvokeAction Action String
+    | GotActionResponse Action String (Result Http.Error ActionResponse)
+
+
 {-| Run state of a Docker container
 See <https://docs.docker.com/engine/api/v1.39/#tag/Container>
 -}
@@ -73,6 +81,16 @@ dockerContainerDecoder =
         |> required "State" runStateDecoder
         |> required "Status" Decode.string
         |> required "Command" Decode.string
+
+
+type alias ActionResponse =
+    { message : String }
+
+
+actionResponseDecoder : Decode.Decoder ActionResponse
+actionResponseDecoder =
+    Decode.succeed ActionResponse
+        |> optional "message" Decode.string ""
 
 
 dockerContainersDecoder : Decode.Decoder DockerContainers
@@ -138,6 +156,13 @@ showRunState runState =
             "dead"
 
 
+type alias Model =
+    { dockerContainers : Maybe DockerContainers
+    , runStates : List RunState
+    , serverError : String
+    }
+
+
 {-| Create a run state filter for Docker engine /containers endpoint
 -}
 createContainersFilter : List RunState -> Encode.Value
@@ -163,29 +188,24 @@ getDockerContainers model =
         }
 
 
+invokeAction : String -> Action -> Cmd Msg
+invokeAction containerId action =
+    let
+        actionPart =
+            case action of
+                Pause ->
+                    "pause"
 
-{- invokeAction: String -> Action -> Msg -> Cmd Msg
-   invokeAction containerId action responseMsg =
-       Http.get url = kkkkkkkk
--}
-
-
-type alias Model =
-    { dockerContainers : Maybe DockerContainers
-    , runStates : List RunState
-    , serverError : String
-    }
-
-
-type Msg
-    = GetDockerContainers
-    | GotDockerContainers (Result Http.Error DockerContainers)
-    | ToggleRunStateFilter RunState Bool
-    | InvokeAction Action String
-
-
-
---    | GotActionResponse Action (Result Http.Error ())
+                Stop ->
+                    "stop"
+    in
+    Http.post
+        { url =
+            createEngineApiUrl ("/containers/" ++ containerId ++ "/" ++ actionPart)
+                Nothing
+        , body = Http.emptyBody
+        , expect = Http.expectJson (GotActionResponse action containerId) actionResponseDecoder
+        }
 
 
 init : ( Model, Cmd Msg )
@@ -249,7 +269,15 @@ update msg model =
             ( newModel, getDockerContainers newModel )
 
         InvokeAction action containerId ->
-            Debug.log "Not implemented: debug for InvokeAction" ( model, Cmd.none )
+            ( model, invokeAction containerId action )
+
+        GotActionResponse action containerId (Ok _) ->
+            ( model, getDockerContainers model )
+
+        GotActionResponse action containerId (Err error) ->
+            ( { model | serverError = "Server error" }
+            , Cmd.none
+            )
 
 
 containerNameOrId : DockerContainer -> String
