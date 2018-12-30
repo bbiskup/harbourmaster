@@ -20,6 +20,8 @@
   - add buttons with a NoOp actoin, or just hide inappropriate buttons?
 - Let restarting (and running?) states blink?
 - Should "remove" use "force" option?
+- Add column for exit code
+  - need to parse 'Status' field
 
 
 == Charts
