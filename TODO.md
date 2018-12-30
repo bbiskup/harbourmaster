@@ -28,3 +28,10 @@
 - Pie chart (or similar): images by size
 - Sparklines: https://github.com/jweir/sparkline
 
+== Access control
+
+- Implement password login
+- two levels of access?
+  - ReadOnly: allows browsing everything (only GET requests)
+  - Full: allows starting, stopping, removing containers and images etc. (POST, DELETE)
+
