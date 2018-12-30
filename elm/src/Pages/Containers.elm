@@ -46,6 +46,7 @@ type RunState
 -}
 type Action
     = Pause
+    | Unpause
     | Stop
     | Remove
     | Restart
@@ -201,6 +202,9 @@ invokeAction containerId action =
                 Pause ->
                     ( "POST", "/pause" )
 
+                Unpause ->
+                    ( "POST", "/unpause" )
+
                 Stop ->
                     ( "POST", "/stop" )
 
@@ -344,7 +348,8 @@ renderActionButton containerId buttonTitle iconClass buttonKind action isEnabled
 
 actionButtons : String -> List ( List RunState, Bool -> Html Msg )
 actionButtons containerId =
-    [ ( [ Paused ], renderActionButton containerId "Restart" "play-circle" Button.success Restart )
+    [ ( [ Running, Paused, Exited ], renderActionButton containerId "Restart" "play-circle" Button.warning Restart )
+    , ( [ Paused ], renderActionButton containerId "Unpause" "arrow-circle-right" Button.success Unpause )
     , ( [ Running ], renderActionButton containerId "Pause" "pause-circle" Button.primary Pause )
     , ( [ Created, Restarting, Running ], renderActionButton containerId "Stop" "stop-circle" Button.secondary Stop )
     , ( [ Exited, Dead ], renderActionButton containerId "Remove" "times-circle" Button.danger Remove )
