@@ -412,6 +412,19 @@ viewContainerRow container =
         ]
 
 
+filterContainers : List DockerContainer -> String -> List DockerContainer
+filterContainers dockerContainers searchTerm =
+    if searchTerm == "" then
+        dockerContainers
+
+    else
+        List.filter
+            (\container ->
+                String.contains searchTerm (containerNameOrId container)
+            )
+            dockerContainers
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -419,20 +432,7 @@ view model =
         content =
             case model.dockerContainers of
                 Just (DockerContainers dockerContainers) ->
-                    let
-                        filteredContainers : List DockerContainer
-                        filteredContainers =
-                            if model.searchTerm == "" then
-                                dockerContainers
-
-                            else
-                                List.filter
-                                    (\container ->
-                                        String.contains model.searchTerm (containerNameOrId container)
-                                    )
-                                    dockerContainers
-                    in
-                    viewContainers filteredContainers
+                    viewContainers <| filterContainers dockerContainers model.searchTerm
 
                 Nothing ->
                     text "No containers"
