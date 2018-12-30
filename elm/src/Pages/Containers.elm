@@ -48,6 +48,7 @@ type Action
     = Pause
     | Stop
     | Remove
+    | Restart
 
 
 allRunStates : List RunState
@@ -202,6 +203,9 @@ invokeAction containerId action =
 
                 Remove ->
                     "remove"
+
+                Restart ->
+                    "restart"
     in
     Http.post
         { url =
@@ -343,6 +347,9 @@ viewContainerRow container =
                     []
                 ]
 
+        restartButton =
+            renderActionButton container.id "Restart" "play-circle" Button.success Restart
+
         pauseButton =
             renderActionButton container.id "Pause" "pause-circle" Button.primary Pause
 
@@ -357,7 +364,7 @@ viewContainerRow container =
                 [ pauseButton, stopButton, removeButton ]
 
             else if container.state == Paused then
-                [ stopButton, removeButton ]
+                [ restartButton, stopButton, removeButton ]
 
             else
                 [ removeButton ]
