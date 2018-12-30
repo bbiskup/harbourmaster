@@ -321,14 +321,19 @@ viewContainers containers =
         }
 
 
-renderActionButton : String -> String -> String -> Button.Option Msg -> Action -> Html Msg
-renderActionButton containerId buttonTitle iconClass buttonKind action =
+renderActionButton : String -> String -> String -> Button.Option Msg -> Action -> Bool -> Html Msg
+renderActionButton containerId buttonTitle iconClass buttonKind action isEnabled =
+    let
+        buttonOptions =
+            [ Button.disabled (not isEnabled)
+            , Button.small
+            , buttonKind
+            , Button.attrs [ Spacing.ml1 ]
+            , Button.onClick (InvokeAction action containerId)
+            ]
+    in
     Button.button
-        [ Button.small
-        , buttonKind
-        , Button.attrs [ Spacing.ml1 ]
-        , Button.onClick (InvokeAction action containerId)
-        ]
+        buttonOptions
         [ i
             [ class ("fas fa-" ++ iconClass)
             , title buttonTitle
@@ -337,7 +342,7 @@ renderActionButton containerId buttonTitle iconClass buttonKind action =
         ]
 
 
-actionButtons : String -> List ( List RunState, Html Msg )
+actionButtons : String -> List ( List RunState, Bool -> Html Msg )
 actionButtons containerId =
     [ ( [ Paused ], renderActionButton containerId "Restart" "play-circle" Button.success Restart )
     , ( [ Running ], renderActionButton containerId "Pause" "pause-circle" Button.primary Pause )
@@ -364,8 +369,15 @@ viewContainerRow container =
         matchingActionButtons : List (Html Msg)
         matchingActionButtons =
             actionButtons container.id
-                |> List.filter (\( applicableStates, _ ) -> List.member container.state applicableStates)
-                |> List.map Tuple.second
+                |> List.map
+                    (\( applicableStates, buttonFn ) ->
+                        if List.member container.state applicableStates then
+                            buttonFn True
+
+                        else
+                            -- disable button
+                            buttonFn False
+                    )
     in
     Table.tr []
         [ Table.td []
