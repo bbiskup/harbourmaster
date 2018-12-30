@@ -421,6 +421,7 @@ filterContainers dockerContainers searchTerm =
         List.filter
             (\container ->
                 String.contains searchTerm (containerNameOrId container)
+                    || String.contains searchTerm container.image
             )
             dockerContainers
 
