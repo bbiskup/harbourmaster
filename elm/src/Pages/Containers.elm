@@ -351,27 +351,19 @@ viewContainerRow container =
                     []
                 ]
 
-        restartButton =
-            renderActionButton container.id "Restart" "play-circle" Button.success Restart
-
-        pauseButton =
-            renderActionButton container.id "Pause" "pause-circle" Button.primary Pause
-
-        stopButton =
-            renderActionButton container.id "Stop" "stop-circle" Button.secondary Stop
-
-        removeButton =
-            renderActionButton container.id "Remove" "times-circle" Button.danger Remove
-
+        actionButtons : List ( List RunState, Html Msg )
         actionButtons =
-            if List.any ((==) container.state) [ Created, Restarting, Running ] then
-                [ pauseButton, stopButton ]
+            [ ( [ Paused ], renderActionButton container.id "Restart" "play-circle" Button.success Restart )
+            , ( [ Running ], renderActionButton container.id "Pause" "pause-circle" Button.primary Pause )
+            , ( [ Created, Restarting, Running ], renderActionButton container.id "Stop" "stop-circle" Button.secondary Stop )
+            , ( [ Exited, Dead ], renderActionButton container.id "Remove" "times-circle" Button.danger Remove )
+            ]
 
-            else if container.state == Paused then
-                [ restartButton, stopButton ]
-
-            else
-                [ removeButton ]
+        matchingActionButtons : List (Html Msg)
+        matchingActionButtons =
+            actionButtons
+                |> List.filter (\( applicableStates, _ ) -> List.member container.state applicableStates)
+                |> List.map Tuple.second
     in
     Table.tr []
         [ Table.td []
@@ -389,7 +381,7 @@ viewContainerRow container =
         , Table.td [] [ text container.status ]
         , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
         , Table.td []
-            [ div [] actionButtons
+            [ div [] matchingActionButtons
             ]
         ]
 
