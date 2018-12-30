@@ -15,13 +15,14 @@
 == Container list
 
 - sort by date?
-- allow filtering by name (and other columns?)
+- allow filtering by image name
 - create invisible placeholder button to align buttons of the same kind horizontally
   - add buttons with a NoOp actoin, or just hide inappropriate buttons?
 - Let restarting (and running?) states blink?
 - Should "remove" use "force" option?
 - Add column for exit code
   - need to parse 'Status' field
+- Show number of containers
 
 
 == Charts

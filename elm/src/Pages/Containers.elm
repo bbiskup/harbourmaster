@@ -6,6 +6,7 @@ module Pages.Containers exposing (Model, Msg, init, subscriptions, update, view)
 import Bootstrap.Button as Button
 import Bootstrap.Form as Form
 import Bootstrap.Form.Checkbox as Checkbox
+import Bootstrap.Form.Input as Input
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
@@ -27,6 +28,7 @@ type Msg
     | ToggleRunStateFilter RunState Bool
     | InvokeAction Action String
     | GotActionResponse Action String (Result Http.Error ActionResponse)
+    | SetSearchTerm String
 
 
 {-| Run state of a Docker container
@@ -162,6 +164,7 @@ showRunState runState =
 type alias Model =
     { dockerContainers : Maybe DockerContainers
     , runStates : List RunState
+    , searchTerm : String
     , serverError : String
     }
 
@@ -230,6 +233,7 @@ init =
         model =
             { dockerContainers = Nothing
             , runStates = [ Running, Paused, Restarting ]
+            , searchTerm = ""
             , serverError = ""
             }
     in
@@ -294,6 +298,9 @@ update msg model =
             ( { model | serverError = "Server error" }
             , Cmd.none
             )
+
+        SetSearchTerm newSearchTerm ->
+            ( { model | searchTerm = newSearchTerm }, Cmd.none )
 
 
 containerNameOrId : DockerContainer -> String
@@ -412,7 +419,20 @@ view model =
         content =
             case model.dockerContainers of
                 Just (DockerContainers dockerContainers) ->
-                    viewContainers dockerContainers
+                    let
+                        filteredContainers : List DockerContainer
+                        filteredContainers =
+                            if model.searchTerm == "" then
+                                dockerContainers
+
+                            else
+                                List.filter
+                                    (\container ->
+                                        String.contains model.searchTerm (containerNameOrId container)
+                                    )
+                                    dockerContainers
+                    in
+                    viewContainers filteredContainers
 
                 Nothing ->
                     text "No containers"
@@ -429,11 +449,19 @@ view model =
                 , Checkbox.checked <| isChecked runState
                 ]
                 (showRunState runState)
+
+        filterInput =
+            Input.text
+                [ Input.attrs [ title "Filter by container name" ]
+                , Input.placeholder "Search term"
+                , Input.onInput SetSearchTerm
+                ]
     in
     Grid.row []
         [ Grid.col [ Col.xs11 ]
             [ h1 [] [ text "Containers" ]
-            , Form.form [] (List.map runStateCheckbox allRunStates)
+            , Form.formInline [ class "harbourmaster-table-form" ]
+                (List.map runStateCheckbox allRunStates ++ [ filterInput ])
             , content
             ]
         ]

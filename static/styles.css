@@ -49,8 +49,14 @@ body{
     color: gray;
 }
 
+/* A numeric table cell */
 .harbourmaster-td-num{
     text-align: right;
+}
+
+/* A form at the top of a table (controls for filters, sorting, etc. */
+.harbourmaster-table-form{
+    padding-bottom: 5px;
 }
 
 .breadcrumb{
