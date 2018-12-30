@@ -18,6 +18,7 @@ import Json.Decode.Pipeline exposing (..)
 import Json.Encode as Encode
 import Routes exposing (containerPath, imagePath)
 import String.Extra exposing (ellipsis)
+import Util exposing (createEngineApiUrl)
 
 
 {-| Run state of a Docker container
@@ -157,9 +158,16 @@ getDockerContainers model =
                 |> Encode.encode 0
     in
     Http.get
-        { url = "/api/docker-engine/?url=/containers/json?filters=" ++ filterQuery
+        { url = createEngineApiUrl "/containers/json" Just ("filters=" ++ filterQuery)
         , expect = Http.expectJson GotDockerContainers dockerContainersDecoder
         }
+
+
+
+{- invokeAction: String -> Action -> Msg -> Cmd Msg
+   invokeAction containerId action responseMsg =
+       Http.get url = kkkkkkkk
+-}
 
 
 type alias Model =
@@ -174,6 +182,10 @@ type Msg
     | GotDockerContainers (Result Http.Error DockerContainers)
     | ToggleRunStateFilter RunState Bool
     | InvokeAction Action String
+
+
+
+--    | GotActionResponse Action (Result Http.Error ())
 
 
 init : ( Model, Cmd Msg )

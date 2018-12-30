@@ -1,4 +1,11 @@
-module Util exposing (bytesToMiB, lastElem, timestampDecoder, timestampFormatter, viewSection)
+module Util exposing
+    ( bytesToMiB
+    , createEngineApiUrl
+    , lastElem
+    , timestampDecoder
+    , timestampFormatter
+    , viewSection
+    )
 
 {-| General utilities
 -}
@@ -78,3 +85,22 @@ timestampFormatter =
 timestampDecoder : Decode.Decoder Time.Posix
 timestampDecoder =
     Decode.map (Time.millisToPosix << (*) 1000) Decode.int
+
+
+createEngineApiUrl : String -> Maybe String -> String
+createEngineApiUrl endPoint query =
+    let
+        queryStr =
+            case query of
+                Just q ->
+                    "?" ++ q
+
+                Nothing ->
+                    ""
+    in
+    engineApiBaseUrl ++ "?url=" ++ endPoint ++ queryStr
+
+
+engineApiBaseUrl : String
+engineApiBaseUrl =
+    "/api/docker-engine/"

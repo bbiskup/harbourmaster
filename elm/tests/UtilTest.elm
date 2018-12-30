@@ -1,4 +1,9 @@
-module UtilTest exposing (byteToMiBSuite, lastElemSuite, timestampFormatterSuite)
+module UtilTest exposing
+    ( byteToMiBSuite
+    , createEngineApiUrlSuite
+    , lastElemSuite
+    , timestampFormatterSuite
+    )
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
@@ -58,5 +63,17 @@ timestampFormatterSuite =
         , test "2018-05-20T19:17:41Z"
             (\_ ->
                 Expect.equal (createTimestamp 1526843861) "2018-05-20 19:17"
+            )
+        ]
+
+
+createEngineApiUrlSuite : Test
+createEngineApiUrlSuite =
+    describe "Function Without query string" <|
+        [ test "Without query string"
+            (\_ ->
+                Expect.equal
+                    (Sut.createEngineApiUrl "/containers" Nothing)
+                    "/api/docker-engine/?url=/containers"
             )
         ]
