@@ -3,6 +3,7 @@ from flask import Flask, Blueprint, redirect
 from flask_restplus import Resource, Api
 import requests
 import requests_unixsocket
+import threading
 
 
 app = Flask(__name__)
@@ -34,6 +35,10 @@ docker_engine_parser.add_argument('url',
 class DockerEngine(Resource):
     """Endpoint to communicate with Docker engine (via Unix domain socket)"""
 
+    def __init__(self, *args, **kwargs):
+        super(DockerEngine, self).__init__(*args, **kwargs)
+        self._lock = threading.Lock()
+
     def get(self, **kwargs):
         return self._handle_request(session.get, **kwargs)
 
@@ -48,7 +53,9 @@ class DockerEngine(Resource):
         url = args['url']
         print('URL: %s' % url)
         docker_request = 'http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)
-        r = handler(docker_request) 
+
+        with self._lock:
+            r = handler(docker_request) 
 
         print('Docker Engine API request: {req}, response: {status}'.format(
                 req=docker_request, status=r.status_code))
