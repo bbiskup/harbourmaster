@@ -39,12 +39,20 @@ class DockerEngine(Resource):
 
     def post(self, **kwargs):
         return self._handle_request(session.post, **kwargs)
+
+    def delete(self, **kwargs):
+        return self._handle_request(session.delete, **kwargs)
     
     def _handle_request(self, handler, **kwargs):
         args = docker_engine_parser.parse_args()
         url = args['url']
-        print('URL: %s', url)
-        r = handler('http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)) 
+        print('URL: %s' % url)
+        docker_request = 'http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)
+        r = handler(docker_request) 
+
+        print('Docker Engine API request: {req}, response: {status}'.format(
+                req=docker_request, status=r.status_code))
+        r.raise_for_status()
 
         if not r.content:
             # Handle empty response (HTTP status 204, 304, ...)

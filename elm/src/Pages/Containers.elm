@@ -193,26 +193,30 @@ getDockerContainers model =
 invokeAction : String -> Action -> Cmd Msg
 invokeAction containerId action =
     let
-        actionPart =
+        ( httpMethod, actionPart ) =
             case action of
+                Restart ->
+                    ( "POST", "/restart" )
+
                 Pause ->
-                    "pause"
+                    ( "POST", "/pause" )
 
                 Stop ->
-                    "stop"
+                    ( "POST", "/stop" )
 
                 Remove ->
-                    "remove"
-
-                Restart ->
-                    "restart"
+                    ( "DELETE", "" )
     in
-    Http.post
-        { url =
-            createEngineApiUrl ("/containers/" ++ containerId ++ "/" ++ actionPart)
+    Http.request
+        { method = httpMethod
+        , headers = []
+        , url =
+            createEngineApiUrl ("/containers/" ++ containerId ++ actionPart)
                 Nothing
         , body = Http.emptyBody
         , expect = Http.expectJson (GotActionResponse action containerId) actionResponseDecoder
+        , timeout = Nothing
+        , tracker = Nothing
         }
 
 
@@ -361,10 +365,10 @@ viewContainerRow container =
 
         actionButtons =
             if List.any ((==) container.state) [ Created, Restarting, Running ] then
-                [ pauseButton, stopButton, removeButton ]
+                [ pauseButton, stopButton ]
 
             else if container.state == Paused then
-                [ restartButton, stopButton, removeButton ]
+                [ restartButton, stopButton ]
 
             else
                 [ removeButton ]
