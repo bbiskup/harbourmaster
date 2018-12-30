@@ -337,12 +337,12 @@ renderActionButton containerId buttonTitle iconClass buttonKind action =
         ]
 
 
-actionButtons : List ( List RunState, Html Msg )
-actionButtons =
-    [ ( [ Paused ], renderActionButton container.id "Restart" "play-circle" Button.success Restart )
-    , ( [ Running ], renderActionButton container.id "Pause" "pause-circle" Button.primary Pause )
-    , ( [ Created, Restarting, Running ], renderActionButton container.id "Stop" "stop-circle" Button.secondary Stop )
-    , ( [ Exited, Dead ], renderActionButton container.id "Remove" "times-circle" Button.danger Remove )
+actionButtons : String -> List ( List RunState, Html Msg )
+actionButtons containerId =
+    [ ( [ Paused ], renderActionButton containerId "Restart" "play-circle" Button.success Restart )
+    , ( [ Running ], renderActionButton containerId "Pause" "pause-circle" Button.primary Pause )
+    , ( [ Created, Restarting, Running ], renderActionButton containerId "Stop" "stop-circle" Button.secondary Stop )
+    , ( [ Exited, Dead ], renderActionButton containerId "Remove" "times-circle" Button.danger Remove )
     ]
 
 
@@ -363,7 +363,7 @@ viewContainerRow container =
 
         matchingActionButtons : List (Html Msg)
         matchingActionButtons =
-            actionButtons
+            actionButtons container.id
                 |> List.filter (\( applicableStates, _ ) -> List.member container.state applicableStates)
                 |> List.map Tuple.second
     in
