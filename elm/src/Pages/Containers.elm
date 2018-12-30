@@ -303,17 +303,20 @@ viewContainerRow container =
             renderActionButton container.id "Pause" "pause-circle" Button.primary Pause
 
         stopButton =
-            renderActionButton container.id "Stop" "times-circle" Button.danger Stop
+            renderActionButton container.id "Stop" "stop-circle" Button.secondary Stop
+
+        removeButton =
+            renderActionButton container.id "Remove" "times-circle" Button.danger Stop
 
         actionButtons =
             if List.any ((==) container.state) [ Created, Restarting, Running ] then
-                [ stopButton, pauseButton ]
+                [ pauseButton, stopButton, removeButton ]
 
             else if container.state == Paused then
-                [ stopButton ]
+                [ stopButton, removeButton ]
 
             else
-                []
+                [ removeButton ]
     in
     Table.tr []
         [ Table.td []
