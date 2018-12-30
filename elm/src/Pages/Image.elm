@@ -7,6 +7,7 @@ import Html exposing (Html, div, text)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
+import Util exposing (createEngineApiUrl)
 
 
 {-| Details about Docker image
@@ -31,7 +32,7 @@ dockerImageDecoder =
 getDockerImage : String -> Cmd Msg
 getDockerImage id =
     Http.get
-        { url = "/api/docker-engine/?url=/images/" ++ id ++ "/json"
+        { url = createEngineApiUrl ("/images/" ++ id ++ "/json") Nothing
         , expect = Http.expectJson GotDockerImage dockerImageDecoder
         }
 

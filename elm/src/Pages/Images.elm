@@ -69,7 +69,7 @@ dockerImagesDecoder =
 getDockerImages : Cmd Msg
 getDockerImages =
     Http.get
-        { url = "/api/docker-engine/?url=/images/json"
+        { url = Util.createEngineApiUrl "/images/json" Nothing
         , expect = Http.expectJson GotDockerImages dockerImagesDecoder
         }
 

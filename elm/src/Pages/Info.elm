@@ -9,7 +9,7 @@ import Html.Attributes exposing (class, style)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
-import Util exposing (bytesToMiB, viewSection)
+import Util exposing (bytesToMiB, createEngineApiUrl, viewSection)
 
 
 type alias Model =
@@ -80,7 +80,7 @@ dockerInfoDecoder =
 getDockerInfo : Cmd Msg
 getDockerInfo =
     Http.get
-        { url = "/api/docker-engine/?url=/info"
+        { url = createEngineApiUrl "/info" Nothing
         , expect = Http.expectJson GotDockerInfo dockerInfoDecoder
         }
 

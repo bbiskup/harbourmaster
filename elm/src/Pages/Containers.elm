@@ -158,7 +158,7 @@ getDockerContainers model =
                 |> Encode.encode 0
     in
     Http.get
-        { url = createEngineApiUrl "/containers/json" Just ("filters=" ++ filterQuery)
+        { url = createEngineApiUrl "/containers/json" (Just <| "filters=" ++ filterQuery)
         , expect = Http.expectJson GotDockerContainers dockerContainersDecoder
         }
 

@@ -7,6 +7,7 @@ import Html exposing (Html, div, text)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
+import Util exposing (createEngineApiUrl)
 
 
 {-| Details about Docker container
@@ -27,7 +28,7 @@ dockerContainerDecoder =
 getDockerContainer : String -> Cmd Msg
 getDockerContainer id =
     Http.get
-        { url = "/api/docker-engine/?url=/containers/" ++ id ++ "/json"
+        { url = createEngineApiUrl ("/containers/" ++ id ++ "/json") Nothing
         , expect = Http.expectJson GotDockerContainer dockerContainerDecoder
         }
 
