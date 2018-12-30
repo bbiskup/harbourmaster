@@ -46,10 +46,10 @@ class DockerEngine(Resource):
         print('URL: %s', url)
         r = handler('http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)) 
 
-        if r.text:
-            return r.json()
+        if r.status_code == 204:  # No content
+            return None
         else:
-            return {}
+            return r.json()
 
 
 if __name__ == '__main__':
