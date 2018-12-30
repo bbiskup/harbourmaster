@@ -14,13 +14,16 @@
 
 == Container list
 
-- show run state in color
 - sort by date?
 - allow filtering by name (and other columns?)
+- create invisible placeholder button to align buttons of the same kind horizontally
+  - add buttons with a NoOp actoin, or just hide inappropriate buttons?
+- Let restarting (and running?) states blink?
 
 
 == Charts
 
 - Pie chart (or similar): containers by size
 - Pie chart (or similar): images by size
+- Sparklines: https://github.com/jweir/sparkline
 
