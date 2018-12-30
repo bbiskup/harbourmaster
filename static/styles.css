@@ -49,6 +49,10 @@ body{
     color: gray;
 }
 
+.harbourmaster-td-num{
+    text-align: right;
+}
+
 .breadcrumb{
     padding: 3px 3px;
     margin: 3px 0px;

@@ -9,7 +9,7 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (checked, href, title, type_)
+import Html.Attributes exposing (checked, class, href, style, title)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode
@@ -193,6 +193,10 @@ viewImageRow image =
                 ++ "("
                 ++ image.id
                 ++ ")"
+
+        tdNumAttr : Table.CellOption Msg
+        tdNumAttr =
+            Table.cellAttr <| class "harbourmaster-td-num"
     in
     Table.tr []
         [ Table.td []
@@ -203,8 +207,8 @@ viewImageRow image =
                 [ text imageName ]
             ]
         , Table.td [] [ text <| Util.timestampFormatter Time.utc image.created ]
-        , Table.td [] [ text <| sizeStr image.size ]
-        , Table.td [] [ text <| sizeStr image.virtualSize ]
+        , Table.td [ tdNumAttr ] [ text <| sizeStr image.size ]
+        , Table.td [ tdNumAttr ] [ text <| sizeStr image.virtualSize ]
         ]
 
 
