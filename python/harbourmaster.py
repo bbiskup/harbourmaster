@@ -46,7 +46,8 @@ class DockerEngine(Resource):
         print('URL: %s', url)
         r = handler('http+unix://%2Fvar%2Frun%2Fdocker.sock{url}'.format(url=url)) 
 
-        if r.status_code == 204:  # No content
+        if not r.content:
+            # Handle empty response (HTTP status 204, 304, ...)
             return None
         else:
             return r.json()
