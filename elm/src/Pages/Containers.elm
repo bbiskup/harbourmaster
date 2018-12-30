@@ -47,6 +47,7 @@ type RunState
 type Action
     = Pause
     | Stop
+    | Remove
 
 
 allRunStates : List RunState
@@ -198,6 +199,9 @@ invokeAction containerId action =
 
                 Stop ->
                     "stop"
+
+                Remove ->
+                    "remove"
     in
     Http.post
         { url =
@@ -346,7 +350,7 @@ viewContainerRow container =
             renderActionButton container.id "Stop" "stop-circle" Button.secondary Stop
 
         removeButton =
-            renderActionButton container.id "Remove" "times-circle" Button.danger Stop
+            renderActionButton container.id "Remove" "times-circle" Button.danger Remove
 
         actionButtons =
             if List.any ((==) container.state) [ Created, Restarting, Running ] then
