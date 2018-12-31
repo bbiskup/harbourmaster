@@ -1,8 +1,10 @@
 module Types exposing
     ( AppMessage
     , AppState
+    , ContainerState(..)
     , MessageSeverity(..)
     , UpdateAppState(..)
+    , containerStateToString
     , httpErrorToAppMessage
     , messageSeverityToString
     , updateAppState
@@ -77,10 +79,39 @@ httpErrorToAppMessage err =
     AppMessage (httpErrorToString err) Error
 
 
+{-| Run state of a Docker container
+See <https://docs.docker.com/engine/api/v1.39/#tag/Container>
+-}
 type ContainerState
     = Created
     | Restarting
     | Running
+    | Removing
     | Paused
     | Exited
     | Dead
+
+
+containerStateToString : ContainerState -> String
+containerStateToString containerState =
+    case containerState of
+        Created ->
+            "created"
+
+        Restarting ->
+            "restarting"
+
+        Running ->
+            "running"
+
+        Removing ->
+            "removing"
+
+        Paused ->
+            "paused"
+
+        Exited ->
+            "exited"
+
+        Dead ->
+            "dead"

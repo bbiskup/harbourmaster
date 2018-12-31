@@ -19,29 +19,17 @@ import Json.Decode.Pipeline exposing (..)
 import Json.Encode as Encode
 import Routes exposing (containerPath, imagePath)
 import String.Extra exposing (ellipsis)
+import Types exposing (ContainerState(..), containerStateToString)
 import Util exposing (createEngineApiUrl)
 
 
 type Msg
     = GetDockerContainers
     | GotDockerContainers (Result Http.Error DockerContainers)
-    | ToggleRunStateFilter RunState Bool
+    | ToggleContainerStateFilter ContainerState Bool
     | InvokeAction Action String
     | GotActionResponse Action String (Result Http.Error ActionResponse)
     | SetSearchTerm String
-
-
-{-| Run state of a Docker container
-See <https://docs.docker.com/engine/api/v1.39/#tag/Container>
--}
-type RunState
-    = Created
-    | Restarting
-    | Running
-    | Removing
-    | Paused
-    | Exited
-    | Dead
 
 
 {-| Actions on a particular container
@@ -54,8 +42,8 @@ type Action
     | Restart
 
 
-allRunStates : List RunState
-allRunStates =
+allContainerStates : List ContainerState
+allContainerStates =
     [ Created, Restarting, Running, Removing, Paused, Exited, Dead ]
 
 
@@ -66,7 +54,7 @@ type alias DockerContainer =
     , names : List String
     , image : String
     , imageId : String
-    , state : RunState
+    , state : ContainerState
     , status : String
     , command : String
     }
@@ -83,7 +71,7 @@ dockerContainerDecoder =
         |> required "Names" (Decode.list Decode.string)
         |> required "Image" Decode.string
         |> required "ImageID" Decode.string
-        |> required "State" runStateDecoder
+        |> required "State" containerStateDecoder
         |> required "Status" Decode.string
         |> required "Command" Decode.string
 
@@ -104,8 +92,8 @@ dockerContainersDecoder =
         Decode.list dockerContainerDecoder
 
 
-runStateDecoder : Decode.Decoder RunState
-runStateDecoder =
+containerStateDecoder : Decode.Decoder ContainerState
+containerStateDecoder =
     Decode.string
         |> Decode.andThen
             (\str ->
@@ -136,34 +124,9 @@ runStateDecoder =
             )
 
 
-showRunState : RunState -> String
-showRunState runState =
-    case runState of
-        Created ->
-            "created"
-
-        Restarting ->
-            "restarting"
-
-        Running ->
-            "running"
-
-        Removing ->
-            "removing"
-
-        Paused ->
-            "paused"
-
-        Exited ->
-            "exited"
-
-        Dead ->
-            "dead"
-
-
 type alias Model =
     { dockerContainers : Maybe DockerContainers
-    , runStates : List RunState
+    , containerStates : List ContainerState
     , searchTerm : String
     , serverError : String
     }
@@ -171,11 +134,11 @@ type alias Model =
 
 {-| Create a run state filter for Docker engine /containers endpoint
 -}
-createContainersFilter : List RunState -> Encode.Value
-createContainersFilter runStates =
+createContainersFilter : List ContainerState -> Encode.Value
+createContainersFilter containerStates =
     Encode.object
         [ ( "status"
-          , Encode.list Encode.string (List.map showRunState runStates)
+          , Encode.list Encode.string (List.map containerStateToString containerStates)
           )
         ]
 
@@ -185,7 +148,7 @@ getDockerContainers model =
     let
         filterQuery : String
         filterQuery =
-            createContainersFilter model.runStates
+            createContainersFilter model.containerStates
                 |> Encode.encode 0
     in
     Http.get
@@ -232,7 +195,7 @@ init =
     let
         model =
             { dockerContainers = Nothing
-            , runStates = [ Running, Paused, Restarting ]
+            , containerStates = [ Running, Paused, Restarting ]
             , searchTerm = ""
             , serverError = ""
             }
@@ -242,18 +205,18 @@ init =
     )
 
 
-addRunState : List RunState -> RunState -> List RunState
-addRunState runStates runState =
-    if List.member runState runStates then
-        runStates
+addContainerState : List ContainerState -> ContainerState -> List ContainerState
+addContainerState containerStates containerState =
+    if List.member containerState containerStates then
+        containerStates
 
     else
-        runState :: runStates
+        containerState :: containerStates
 
 
-removeRunState : List RunState -> RunState -> List RunState
-removeRunState runStates runState =
-    List.filter ((/=) runState) runStates
+removeContainerState : List ContainerState -> ContainerState -> List ContainerState
+removeContainerState containerStates containerState =
+    List.filter ((/=) containerState) containerStates
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -272,19 +235,19 @@ update msg model =
         GetDockerContainers ->
             ( model, getDockerContainers model )
 
-        ToggleRunStateFilter runState checked ->
+        ToggleContainerStateFilter containerState checked ->
             let
-                newRunStates : List RunState
-                newRunStates =
+                newContainerStates : List ContainerState
+                newContainerStates =
                     if checked then
-                        addRunState model.runStates runState
+                        addContainerState model.containerStates containerState
 
                     else
-                        removeRunState model.runStates runState
+                        removeContainerState model.containerStates containerState
             in
             let
                 newModel =
-                    { model | runStates = newRunStates }
+                    { model | containerStates = newContainerStates }
             in
             ( newModel, getDockerContainers newModel )
 
@@ -353,7 +316,7 @@ renderActionButton containerId buttonTitle iconClass buttonKind action isEnabled
         ]
 
 
-actionButtons : String -> List ( List RunState, Bool -> Html Msg )
+actionButtons : String -> List ( List ContainerState, Bool -> Html Msg )
 actionButtons containerId =
     [ ( [ Running, Paused, Exited ]
       , renderActionButton containerId "Restart" "play-circle" Button.warning Restart
@@ -384,9 +347,9 @@ viewContainerRow container =
         commandEllipsis =
             ellipsis 30 container.command
 
-        runStateText : String
-        runStateText =
-            showRunState container.state
+        containerStateText : String
+        containerStateText =
+            containerStateToString container.state
 
         matchingActionButtons : List (Html Msg)
         matchingActionButtons =
@@ -412,8 +375,8 @@ viewContainerRow container =
                 ]
                 [ text <| ellipsis 30 container.image ]
             ]
-        , Table.td [ Table.cellAttr <| class ("harbourmaster-runstate-" ++ runStateText) ]
-            [ text <| runStateText ]
+        , Table.td [ Table.cellAttr <| class ("harbourmaster-runstate-" ++ containerStateText) ]
+            [ text <| containerStateText ]
         , Table.td [] [ text container.status ]
         , Table.td [] [ code [ title container.command ] [ text commandEllipsis ] ]
         , Table.td []
@@ -448,18 +411,18 @@ view model =
                 Nothing ->
                     text "No containers"
 
-        isChecked : RunState -> Bool
-        isChecked runState =
-            List.member runState model.runStates
+        isChecked : ContainerState -> Bool
+        isChecked containerState =
+            List.member containerState model.containerStates
 
-        runStateCheckbox : RunState -> Html Msg
-        runStateCheckbox runState =
+        containerStateCheckbox : ContainerState -> Html Msg
+        containerStateCheckbox containerState =
             Checkbox.checkbox
                 [ Checkbox.inline
-                , Checkbox.onCheck (ToggleRunStateFilter runState)
-                , Checkbox.checked <| isChecked runState
+                , Checkbox.onCheck (ToggleContainerStateFilter containerState)
+                , Checkbox.checked <| isChecked containerState
                 ]
-                (showRunState runState)
+                (containerStateToString containerState)
 
         filterInput =
             Input.text
@@ -472,7 +435,7 @@ view model =
         [ Grid.col [ Col.xs11 ]
             [ h1 [] [ text "Containers" ]
             , Form.formInline [ class "harbourmaster-table-form" ]
-                (List.map runStateCheckbox allRunStates ++ [ filterInput ])
+                (List.map containerStateCheckbox allContainerStates ++ [ filterInput ])
             , content
             ]
         ]
