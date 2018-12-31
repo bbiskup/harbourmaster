@@ -7,6 +7,7 @@ import Html exposing (Html, div, text)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
+import Types exposing (UpdateAppState(..), httpErrorToAppMessage)
 import Util exposing (createEngineApiUrl)
 
 
@@ -51,21 +52,23 @@ init id =
     )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg, UpdateAppState )
 update msg model =
     case msg of
         GotDockerContainer (Ok dockerContainer) ->
             ( { model | dockerContainer = Just dockerContainer }
             , Cmd.none
+            , NoOp
             )
 
         GotDockerContainer (Err error) ->
             ( { model | serverError = "Server error" }
             , Cmd.none
+            , AddAppMessage <| httpErrorToAppMessage error
             )
 
         GetDockerContainer id ->
-            ( model, getDockerContainer id )
+            ( model, getDockerContainer id, NoOp )
 
 
 view : Model -> Html Msg

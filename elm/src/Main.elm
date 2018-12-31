@@ -429,10 +429,13 @@ update msg ({ appState } as model) =
 
                 ( ContainerMsg subMsg, PageContainer pageModel ) ->
                     let
-                        ( newPageModel, newCmd ) =
+                        ( newPageModel, newCmd, appStateUpdate ) =
                             Container.update subMsg pageModel
                     in
-                    ( { model | page = PageContainer newPageModel }
+                    ( { model
+                        | page = PageContainer newPageModel
+                        , appState = updateCurrentAppState appStateUpdate
+                      }
                     , Cmd.map ContainerMsg newCmd
                     )
 
