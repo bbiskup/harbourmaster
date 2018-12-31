@@ -4,6 +4,7 @@ module Types exposing
     , MessageSeverity(..)
     , UpdateAppState(..)
     , httpErrorToAppMessage
+    , messageSeverityToString
     , updateAppState
     )
 
@@ -20,6 +21,25 @@ type MessageSeverity
     | Warning
     | Error
     | Fatal
+
+
+messageSeverityToString : MessageSeverity -> String
+messageSeverityToString severity =
+    case severity of
+        Success ->
+            "Success"
+
+        Info ->
+            "Info"
+
+        Warning ->
+            "Warning"
+
+        Error ->
+            "Error"
+
+        Fatal ->
+            "Fatal"
 
 
 type alias AppMessage =

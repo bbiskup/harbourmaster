@@ -22,7 +22,14 @@ import Pages.Info as Info
 import Routes exposing (Route, pathFor)
 import Toasty
 import Toasty.Defaults
-import Types exposing (AppState, MessageSeverity(..), UpdateAppState, updateAppState)
+import Types
+    exposing
+        ( AppState
+        , MessageSeverity(..)
+        , UpdateAppState
+        , messageSeverityToString
+        , updateAppState
+        )
 import Url exposing (Url)
 import Util exposing (lastElem)
 
@@ -307,7 +314,7 @@ notFoundView =
     div [] [ text "not found" ]
 
 
-toastSpecForSeverity : MessageSeverity -> ( Int, String -> String -> Toasty.Defaults.Toast )
+toastSpecForSeverity : MessageSeverity -> ( String, Int, String -> String -> Toasty.Defaults.Toast )
 toastSpecForSeverity severity =
     let
         successDelay =
@@ -318,22 +325,25 @@ toastSpecForSeverity severity =
 
         errorDelay =
             60000
+
+        ( delay, toastFunc ) =
+            case severity of
+                Success ->
+                    ( successDelay, Toasty.Defaults.Success )
+
+                Info ->
+                    ( successDelay, Toasty.Defaults.Success )
+
+                Warning ->
+                    ( warningDelay, Toasty.Defaults.Warning )
+
+                Error ->
+                    ( errorDelay, Toasty.Defaults.Error )
+
+                Fatal ->
+                    ( errorDelay, Toasty.Defaults.Error )
     in
-    case severity of
-        Success ->
-            ( successDelay, Toasty.Defaults.Success )
-
-        Info ->
-            ( successDelay, Toasty.Defaults.Success )
-
-        Warning ->
-            ( warningDelay, Toasty.Defaults.Warning )
-
-        Error ->
-            ( errorDelay, Toasty.Defaults.Error )
-
-        Fatal ->
-            ( errorDelay, Toasty.Defaults.Error )
+    ( messageSeverityToString severity, delay, toastFunc )
 
 
 {-| Convert all pending app messages to Toasty notifications.
@@ -350,12 +360,12 @@ convertAppMessagesToToasties ( model, cmd ) =
                 newAppState =
                     { appMessages = remainingAppMessages }
 
-                ( toastDelay, toastFunc ) =
+                ( toastTitle, toastDelay, toastFunc ) =
                     toastSpecForSeverity firstAppMessage.severity
             in
             Toasty.addToast (toastyConfig |> Toasty.delay (toFloat toastDelay))
                 ToastyMsg
-                (toastFunc "convertAppMessagesToToasties" firstAppMessage.message)
+                (toastFunc toastTitle firstAppMessage.message)
                 ( { model | appState = newAppState }, cmd )
 
         [] ->
