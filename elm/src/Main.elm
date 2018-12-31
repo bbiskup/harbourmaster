@@ -102,7 +102,6 @@ toastyConfig =
             ]
     in
     Toasty.config
-        |> Toasty.delay 5000
         |> Toasty.containerAttrs containerAttrs
 
 
@@ -308,23 +307,33 @@ notFoundView =
     div [] [ text "not found" ]
 
 
-toastFuncForSeverity : MessageSeverity -> (String -> String -> Toasty.Defaults.Toast)
-toastFuncForSeverity severity =
+toastSpecForSeverity : MessageSeverity -> ( Int, String -> String -> Toasty.Defaults.Toast )
+toastSpecForSeverity severity =
+    let
+        successDelay =
+            3000
+
+        warningDelay =
+            10000
+
+        errorDelay =
+            60000
+    in
     case severity of
         Success ->
-            Toasty.Defaults.Success
+            ( successDelay, Toasty.Defaults.Success )
 
         Info ->
-            Toasty.Defaults.Success
+            ( successDelay, Toasty.Defaults.Success )
 
         Warning ->
-            Toasty.Defaults.Warning
+            ( warningDelay, Toasty.Defaults.Warning )
 
         Error ->
-            Toasty.Defaults.Error
+            ( errorDelay, Toasty.Defaults.Error )
 
         Fatal ->
-            Toasty.Defaults.Error
+            ( errorDelay, Toasty.Defaults.Error )
 
 
 {-| Convert all pending app messages to Toasty notifications.
@@ -341,10 +350,10 @@ convertAppMessagesToToasties ( model, cmd ) =
                 newAppState =
                     { appMessages = remainingAppMessages }
 
-                toastFunc =
-                    toastFuncForSeverity firstAppMessage.severity
+                ( toastDelay, toastFunc ) =
+                    toastSpecForSeverity firstAppMessage.severity
             in
-            Toasty.addToast toastyConfig
+            Toasty.addToast (toastyConfig |> Toasty.delay (toFloat toastDelay))
                 ToastyMsg
                 (toastFunc "convertAppMessagesToToasties" firstAppMessage.message)
                 ( { model | appState = newAppState }, cmd )
