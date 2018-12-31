@@ -1,6 +1,7 @@
 module Util exposing
     ( bytesToMiB
     , createEngineApiUrl
+    , httpErrorToString
     , lastElem
     , timestampDecoder
     , timestampFormatter
@@ -14,7 +15,9 @@ import Bootstrap.Table as Table
 import DateFormat
 import Html exposing (..)
 import Html.Attributes exposing (style)
+import Http exposing (Error(..))
 import Json.Decode as Decode
+import String.Extra exposing (ellipsis)
 import Time
 
 
@@ -104,3 +107,22 @@ createEngineApiUrl endPoint query =
 engineApiBaseUrl : String
 engineApiBaseUrl =
     "/api/docker-engine/"
+
+
+httpErrorToString : Error -> String
+httpErrorToString error =
+    case error of
+        BadUrl url ->
+            "Bad URL: " ++ url
+
+        Timeout ->
+            "Timeout"
+
+        NetworkError ->
+            "Networ error"
+
+        BadBody body ->
+            "Bad body: " ++ ellipsis 50 body
+
+        BadStatus statusCode ->
+            "Bad status: " ++ String.fromInt statusCode

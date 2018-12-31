@@ -9,6 +9,7 @@ import Html.Attributes exposing (class, style)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
+import Types exposing (UpdateAppState(..), httpErrorToAppMessage)
 import Util exposing (bytesToMiB, createEngineApiUrl, viewSection)
 
 
@@ -99,17 +100,23 @@ init =
     )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg, UpdateAppState )
 update msg model =
     case msg of
         GotDockerInfo (Ok dockerInfo) ->
-            ( { model | dockerInfo = Just dockerInfo }, Cmd.none )
+            ( { model | dockerInfo = Just dockerInfo }
+            , Cmd.none
+            , NoOp
+            )
 
         GotDockerInfo (Err error) ->
-            ( { model | serverErrMsg = "Server error" }, Cmd.none )
+            ( { model | serverErrMsg = "Server error" }
+            , Cmd.none
+            , AddAppMessage <| httpErrorToAppMessage error
+            )
 
         GetDockerInfo ->
-            ( model, getDockerInfo )
+            ( model, getDockerInfo, NoOp )
 
 
 viewPlugins : Plugins -> Html Msg

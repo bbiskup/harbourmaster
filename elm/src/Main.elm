@@ -20,7 +20,7 @@ import Pages.Image as Image
 import Pages.Images as Images
 import Pages.Info as Info
 import Routes exposing (Route, pathFor)
-import Types exposing (AppState)
+import Types exposing (AppState, UpdateAppState, updateAppState)
 import Url exposing (Url)
 import Util exposing (lastElem)
 
@@ -31,7 +31,8 @@ appTitle =
 
 
 type alias Model =
-    { navKey : Nav.Key
+    { appState : AppState
+    , navKey : Nav.Key
     , route : Route
     , page : Page
     , navbarState : Navbar.State
@@ -77,7 +78,8 @@ init () url navKey =
             Navbar.initialState NavbarMsg
 
         model =
-            { navKey = navKey
+            { appState = { appMessages = [] }
+            , navKey = navKey
             , route = Routes.parseUrl url
             , page = PageNone
             , navbarState = navbarState
@@ -230,13 +232,18 @@ view model =
         breadCrumbs =
             breadCrumbList model.page
                 |> renderBreadCrumbs
+
+        renderAppMessages : Html Msg
+        renderAppMessages =
+            ul []
+                (List.map (\x -> li [] [ text x.message ]) model.appState.appMessages)
     in
     { title = appTitle
     , body =
         [ Grid.containerFluid [ h100 ]
             [ Grid.row [] [ Grid.col [] [ breadCrumbs ] ]
             , Grid.row [ Row.attrs [ h100 ] ]
-                [ Grid.col [ Col.xs2, Col.attrs [] ] [ sideBar ]
+                [ Grid.col [ Col.xs2, Col.attrs [] ] [ renderAppMessages, sideBar ]
                 , Grid.col [ Col.xs10 ] [ currentPage model ]
                 ]
             ]
@@ -277,7 +284,12 @@ notFoundView =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ appState } as model) =
+    let
+        updateCurrentAppState : UpdateAppState -> AppState
+        updateCurrentAppState =
+            updateAppState appState
+    in
     case ( msg, model.page ) of
         ( OnUrlRequest urlRequest, _ ) ->
             case urlRequest of
@@ -297,10 +309,13 @@ update msg model =
 
         ( InfoMsg subMsg, PageInfo pageModel ) ->
             let
-                ( newPageModel, newCmd ) =
+                ( newPageModel, newCmd, appStateUpdate ) =
                     Info.update subMsg pageModel
             in
-            ( { model | page = PageInfo newPageModel }
+            ( { model
+                | page = PageInfo newPageModel
+                , appState = updateCurrentAppState appStateUpdate
+              }
             , Cmd.map InfoMsg newCmd
             )
 
