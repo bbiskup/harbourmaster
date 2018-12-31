@@ -19,7 +19,7 @@ import Json.Decode.Pipeline exposing (..)
 import Json.Encode as Encode
 import Routes exposing (containerPath, imagePath)
 import String.Extra exposing (ellipsis)
-import Types exposing (ContainerState(..), containerStateToString)
+import Types exposing (ContainerState(..), UpdateAppState(..), containerStateToString, httpErrorToAppMessage)
 import Util exposing (createEngineApiUrl)
 
 
@@ -129,7 +129,6 @@ type alias Model =
     { dockerContainers : Maybe DockerContainers
     , containerStates : List ContainerState
     , searchTerm : String
-    , serverError : String
     }
 
 
@@ -198,7 +197,6 @@ init =
             { dockerContainers = Nothing
             , containerStates = [ Running, Paused, Restarting ]
             , searchTerm = ""
-            , serverError = ""
             }
     in
     ( model
@@ -220,21 +218,26 @@ removeContainerState containerStates containerState =
     List.filter ((/=) containerState) containerStates
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg, UpdateAppState )
 update msg model =
     case msg of
         GotDockerContainers (Ok dockerContainers) ->
             ( { model | dockerContainers = Just dockerContainers }
             , Cmd.none
+            , NoOp
             )
 
         GotDockerContainers (Err error) ->
-            ( { model | serverError = "Server error" }
+            ( model
             , Cmd.none
+            , AddAppMessage <| httpErrorToAppMessage error
             )
 
         GetDockerContainers ->
-            ( model, getDockerContainers model )
+            ( model
+            , getDockerContainers model
+            , NoOp
+            )
 
         ToggleContainerStateFilter containerState checked ->
             let
@@ -250,24 +253,40 @@ update msg model =
                 newModel =
                     { model | containerStates = newContainerStates }
             in
-            ( newModel, getDockerContainers newModel )
+            ( newModel
+            , getDockerContainers newModel
+            , NoOp
+            )
 
         InvokeAction action containerId ->
-            ( model, invokeAction containerId action )
+            ( model
+            , invokeAction containerId action
+            , NoOp
+            )
 
         GotActionResponse action containerId (Ok _) ->
-            ( model, getDockerContainers model )
+            ( model
+            , getDockerContainers model
+            , NoOp
+            )
 
         GotActionResponse action containerId (Err error) ->
-            ( { model | serverError = "Server error" }
+            ( model
             , Cmd.none
+            , AddAppMessage <| httpErrorToAppMessage error
             )
 
         SetSearchTerm newSearchTerm ->
-            ( { model | searchTerm = newSearchTerm }, Cmd.none )
+            ( { model | searchTerm = newSearchTerm }
+            , Cmd.none
+            , NoOp
+            )
 
         ClearSearchTerm ->
-            ( { model | searchTerm = "" }, Cmd.none )
+            ( { model | searchTerm = "" }
+            , Cmd.none
+            , NoOp
+            )
 
 
 containerNameOrId : DockerContainer -> String
