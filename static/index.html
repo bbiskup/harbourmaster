@@ -10,7 +10,15 @@
 
         <link rel="stylesheet" href="/static/styles.css">
         <link rel="stylesheet" href="/static/fontawesome/css/all.min.css" >
+
+        <!-- from http://toasty-bootstrap.surge.sh/static/css/main.c6363f2a.css -->
+        <link rel="stylesheet" href="/static/toasty.css" >
+
+        <!-- from https://raw.githubusercontent.com/pablen/toasty/master/src/Toasty/Defaults.css -->
+        <link rel="stylesheet" href="/static/toasty-default.css" >
+
         <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
+
     </head>
     <body>
         <div id="app">
@@ -19,6 +27,9 @@
                 var app = Elm.Main.init({
                         node: document.getElementById('app')});
             </script>
+
+            <!-- For Toasty -->
+            <script src="/static/jquery-3.2.1.slim.min.js"></script>
         </div>
     </body>
 </html>

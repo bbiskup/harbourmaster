@@ -20,6 +20,8 @@ import Pages.Image as Image
 import Pages.Images as Images
 import Pages.Info as Info
 import Routes exposing (Route, pathFor)
+import Toasty
+import Toasty.Defaults
 import Types exposing (AppState, UpdateAppState, updateAppState)
 import Url exposing (Url)
 import Util exposing (lastElem)
@@ -36,6 +38,7 @@ type alias Model =
     , route : Route
     , page : Page
     , navbarState : Navbar.State
+    , toasties : Toasty.Stack Toasty.Defaults.Toast
     }
 
 
@@ -69,6 +72,7 @@ type Msg
     | ImagesMsg Images.Msg
     | ImageMsg Image.Msg
     | NavbarMsg Navbar.State
+    | ToastyMsg (Toasty.Msg Toasty.Defaults.Toast)
 
 
 init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -83,10 +87,16 @@ init () url navKey =
             , route = Routes.parseUrl url
             , page = PageNone
             , navbarState = navbarState
+            , toasties = Toasty.initialState
             }
     in
     ( model, navbarCmd )
         |> loadCurrentPage
+
+
+toastyConfig : Toasty.Config msg
+toastyConfig =
+    Toasty.config
 
 
 loadCurrentPage : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -237,13 +247,21 @@ view model =
         renderAppMessages =
             ul []
                 (List.map (\x -> li [] [ text x.message ]) model.appState.appMessages)
+
+        renderToasts : Toasty.Stack Toasty.Defaults.Toast -> Html Msg
+        renderToasts toast =
+            div [] [ Toasty.view toastyConfig Toasty.Defaults.view ToastyMsg toast ]
     in
     { title = appTitle
     , body =
         [ Grid.containerFluid [ h100 ]
             [ Grid.row [] [ Grid.col [] [ breadCrumbs ] ]
             , Grid.row [ Row.attrs [ h100 ] ]
-                [ Grid.col [ Col.xs2, Col.attrs [] ] [ renderAppMessages, sideBar ]
+                [ Grid.col [ Col.xs2, Col.attrs [] ]
+                    [ renderToasts model.toasties
+                    , renderAppMessages
+                    , sideBar
+                    ]
                 , Grid.col [ Col.xs10 ] [ currentPage model ]
                 ]
             ]
@@ -354,6 +372,9 @@ update msg ({ appState } as model) =
             ( { model | page = PageImages newPageModel }
             , Cmd.map ImagesMsg newCmd
             )
+                |> Toasty.addToast toastyConfig
+                    ToastyMsg
+                    (Toasty.Defaults.Success "Toasty header" "Toasty for images page")
 
         ( ImagesMsg subMsg, _ ) ->
             ( model, Cmd.none )
@@ -372,6 +393,9 @@ update msg ({ appState } as model) =
 
         ( NavbarMsg state, _ ) ->
             ( { model | navbarState = state }, Cmd.none )
+
+        ( ToastyMsg subMsg, _ ) ->
+            Toasty.update toastyConfig ToastyMsg subMsg model
 
 
 subscriptions : Model -> Sub Msg
