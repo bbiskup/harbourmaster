@@ -440,6 +440,7 @@ view model =
                 , Button.button
                     [ Button.small
                     , Button.onClick ClearSearchTerm
+                    , Button.attrs [ Spacing.ml1 ]
                     ]
                     [ i
                         [ class "fas fa-times"
