@@ -30,6 +30,7 @@ type Msg
     | InvokeAction Action String
     | GotActionResponse Action String (Result Http.Error ActionResponse)
     | SetSearchTerm String
+    | ClearSearchTerm
 
 
 {-| Actions on a particular container
@@ -265,6 +266,9 @@ update msg model =
         SetSearchTerm newSearchTerm ->
             ( { model | searchTerm = newSearchTerm }, Cmd.none )
 
+        ClearSearchTerm ->
+            ( { model | searchTerm = "" }, Cmd.none )
+
 
 containerNameOrId : DockerContainer -> String
 containerNameOrId container =
@@ -433,7 +437,10 @@ view model =
                     , Input.placeholder "Search term"
                     , Input.onInput SetSearchTerm
                     ]
-                , Button.button [ Button.small ]
+                , Button.button
+                    [ Button.small
+                    , Button.onClick ClearSearchTerm
+                    ]
                     [ i
                         [ class "fas fa-times"
                         ]
