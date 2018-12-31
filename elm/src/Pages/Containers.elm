@@ -432,8 +432,11 @@ view model =
             div
                 [ style "display" "inline-flex"
                 ]
-                [ Input.text
-                    [ Input.attrs [ title "Filter by container name" ]
+                [ Input.search
+                    [ Input.attrs
+                        [ title "Filter by container name"
+                        ]
+                    , Input.value model.searchTerm
                     , Input.placeholder "Search term"
                     , Input.onInput SetSearchTerm
                     ]
