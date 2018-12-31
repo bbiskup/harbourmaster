@@ -1,12 +1,14 @@
 module UtilTest exposing
     ( byteToMiBSuite
     , createEngineApiUrlSuite
+    , httpErrorToStringSuite
     , lastElemSuite
     , timestampFormatterSuite
     )
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
+import Http
 import Test exposing (..)
 import Time
 import Util as Sut
@@ -75,5 +77,39 @@ createEngineApiUrlSuite =
                 Expect.equal
                     (Sut.createEngineApiUrl "/containers" Nothing)
                     "/api/docker-engine/?url=/containers"
+            )
+        ]
+
+
+httpErrorToStringSuite : Test
+httpErrorToStringSuite =
+    describe "Function httpErrorToStringSuite" <|
+        [ test "Timeout"
+            (\_ ->
+                Expect.equal (Sut.httpErrorToString Http.Timeout) "Timeout"
+            )
+        , test "BadUrl"
+            (\_ ->
+                Expect.equal (Sut.httpErrorToString <| Http.BadUrl "xxx") "Bad URL: xxx"
+            )
+        , test "BadBody, short body"
+            (\_ ->
+                let
+                    body =
+                        String.repeat 50 "x"
+                in
+                Expect.equal (Sut.httpErrorToString <| Http.BadBody body) ("Bad body: " ++ body)
+            )
+        , test "BadBody, long body"
+            (\_ ->
+                let
+                    body =
+                        String.repeat 51 "x"
+                in
+                Expect.equal (Sut.httpErrorToString <| Http.BadBody body) ("Bad body: " ++ String.repeat 47 "x" ++ "...")
+            )
+        , test "BadStatus"
+            (\_ ->
+                Expect.equal (Sut.httpErrorToString <| Http.BadStatus 500) "Bad status: 500"
             )
         ]
