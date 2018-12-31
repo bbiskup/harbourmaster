@@ -21,7 +21,9 @@ import Routes exposing (containerPath, imagePath)
 import String.Extra exposing (ellipsis)
 import Types
     exposing
-        ( ContainerState(..)
+        ( AppMessage
+        , ContainerState(..)
+        , MessageSeverity(..)
         , UpdateAppState(..)
         , containerStateToString
         , httpErrorToAppMessage
@@ -47,6 +49,25 @@ type Action
     | Stop
     | Remove
     | Restart
+
+
+actionAppMessageText : Action -> String
+actionAppMessageText action =
+    case action of
+        Pause ->
+            "paused"
+
+        Unpause ->
+            "unpaused"
+
+        Stop ->
+            "stopped"
+
+        Remove ->
+            "removed"
+
+        Restart ->
+            "restarted"
 
 
 allContainerStates : List ContainerState
@@ -271,9 +292,17 @@ update msg model =
             )
 
         GotActionResponse action containerId (Ok _) ->
+            let
+                actionMessageText =
+                    "Successfully "
+                        ++ actionAppMessageText action
+                        ++ " container "
+                        ++ containerId
+                        ++ "."
+            in
             ( model
             , getDockerContainers model
-            , NoOp
+            , AddAppMessage <| AppMessage actionMessageText Success
             )
 
         GotActionResponse action containerId (Err error) ->
