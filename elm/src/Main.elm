@@ -308,6 +308,9 @@ notFoundView =
     div [] [ text "not found" ]
 
 
+{-| Convert all pending app messages to Toasty notifications.
+App messages are removed after triggering a notification.
+-}
 convertAppMessagesToToasties : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 convertAppMessagesToToasties ( model, cmd ) =
     case model.appState.appMessages of
