@@ -382,6 +382,9 @@ update msg ({ appState } as model) =
                 |> Toasty.addToast toastyConfig
                     ToastyMsg
                     (Toasty.Defaults.Success "Toasty header" "Toasty for images page")
+                |> Toasty.addToast toastyConfig
+                    ToastyMsg
+                    (Toasty.Defaults.Warning "Toasty header 2" "Another Toasty")
 
         ( ImagesMsg subMsg, _ ) ->
             ( model, Cmd.none )
