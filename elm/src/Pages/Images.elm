@@ -17,6 +17,7 @@ import Json.Decode.Pipeline exposing (..)
 import Routes exposing (imagePath, imagesPath)
 import String.Extra exposing (ellipsis)
 import Time
+import Types exposing (UpdateAppState(..), httpErrorToAppMessage)
 import Util
 
 
@@ -97,25 +98,31 @@ init =
     )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg, UpdateAppState )
 update msg model =
     case msg of
         GotDockerImages (Ok dockerImages) ->
             ( { model | dockerImages = Just dockerImages }
             , Cmd.none
+            , NoOp
             )
 
         GotDockerImages (Err error) ->
             ( { model | serverError = "Server error" }
             , Cmd.none
+            , AddAppMessage <| httpErrorToAppMessage error
             )
 
         GetDockerImages ->
-            ( model, getDockerImages )
+            ( model
+            , getDockerImages
+            , NoOp
+            )
 
         ToggleHideUnnamedImages isChecked ->
             ( { model | filterUnnamedImages = isChecked }
             , getDockerImages
+            , NoOp
             )
 
 

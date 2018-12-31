@@ -438,10 +438,13 @@ update msg ({ appState } as model) =
 
                 ( ImagesMsg subMsg, PageImages pageModel ) ->
                     let
-                        ( newPageModel, newCmd ) =
+                        ( newPageModel, newCmd, appStateUpdate ) =
                             Images.update subMsg pageModel
                     in
-                    ( { model | page = PageImages newPageModel }
+                    ( { model
+                        | page = PageImages newPageModel
+                        , appState = updateCurrentAppState appStateUpdate
+                      }
                     , Cmd.map ImagesMsg newCmd
                     )
 
