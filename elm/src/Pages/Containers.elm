@@ -35,8 +35,8 @@ type Msg
     = GetDockerContainers
     | GotDockerContainers (Result Http.Error DockerContainers)
     | ToggleContainerStateFilter ContainerState Bool
-    | InvokeAction Action String
-    | GotActionResponse Action String (Result Http.Error ActionResponse)
+    | InvokeAction Action DockerContainer
+    | GotActionResponse Action DockerContainer (Result Http.Error ActionResponse)
     | SetSearchTerm String
     | ClearSearchTerm
 
@@ -51,8 +51,8 @@ type Action
     | Restart
 
 
-actionAppMessageText : Action -> String
-actionAppMessageText action =
+actionAppMessageTextPast : Action -> String
+actionAppMessageTextPast action =
     case action of
         Pause ->
             "paused"
@@ -68,6 +68,25 @@ actionAppMessageText action =
 
         Restart ->
             "restarted"
+
+
+actionAppMessageTextPresent : Action -> String
+actionAppMessageTextPresent action =
+    case action of
+        Pause ->
+            "pause"
+
+        Unpause ->
+            "unpause"
+
+        Stop ->
+            "stop"
+
+        Remove ->
+            "remove"
+
+        Restart ->
+            "restart"
 
 
 allContainerStates : List ContainerState
@@ -184,8 +203,8 @@ getDockerContainers model =
         }
 
 
-invokeAction : String -> Action -> Cmd Msg
-invokeAction containerId action =
+invokeAction : DockerContainer -> Action -> Cmd Msg
+invokeAction container action =
     let
         ( httpMethod, actionPart ) =
             case action of
@@ -208,10 +227,10 @@ invokeAction containerId action =
         { method = httpMethod
         , headers = []
         , url =
-            createEngineApiUrl ("/containers/" ++ containerId ++ actionPart)
+            createEngineApiUrl ("/containers/" ++ container.id ++ actionPart)
                 Nothing
         , body = Http.emptyBody
-        , expect = Http.expectJson (GotActionResponse action containerId) actionResponseDecoder
+        , expect = Http.expectJson (GotActionResponse action container) actionResponseDecoder
         , timeout = Nothing
         , tracker = Nothing
         }
@@ -285,19 +304,19 @@ update msg model =
             , NoOp
             )
 
-        InvokeAction action containerId ->
+        InvokeAction action container ->
             ( model
-            , invokeAction containerId action
+            , invokeAction container action
             , NoOp
             )
 
-        GotActionResponse action containerId (Ok _) ->
+        GotActionResponse action container (Ok _) ->
             let
                 actionMessageText =
                     "Successfully "
-                        ++ actionAppMessageText action
+                        ++ actionAppMessageTextPast action
                         ++ " container "
-                        ++ containerId
+                        ++ containerNameOrId container
                         ++ "."
             in
             ( model
@@ -305,10 +324,20 @@ update msg model =
             , AddAppMessage <| AppMessage actionMessageText Success
             )
 
-        GotActionResponse action containerId (Err error) ->
+        GotActionResponse action container (Err error) ->
+            let
+                errorMessageText =
+                    "Failed to "
+                        ++ actionAppMessageTextPresent action
+                        ++ " container "
+                        ++ containerNameOrId container
+                        ++ " ("
+                        ++ Util.httpErrorToString error
+                        ++ ")."
+            in
             ( model
             , Cmd.none
-            , AddAppMessage <| httpErrorToAppMessage error
+            , AddAppMessage <| AppMessage errorMessageText Error
             )
 
         SetSearchTerm newSearchTerm ->
@@ -353,15 +382,15 @@ viewContainers containers =
         }
 
 
-renderActionButton : String -> String -> String -> Button.Option Msg -> Action -> Bool -> Html Msg
-renderActionButton containerId buttonTitle iconClass buttonKind action isEnabled =
+renderActionButton : DockerContainer -> String -> String -> Button.Option Msg -> Action -> Bool -> Html Msg
+renderActionButton container buttonTitle iconClass buttonKind action isEnabled =
     let
         buttonOptions =
             [ Button.disabled (not isEnabled)
             , Button.small
             , buttonKind
             , Button.attrs [ Spacing.ml1 ]
-            , Button.onClick (InvokeAction action containerId)
+            , Button.onClick (InvokeAction action container)
             ]
     in
     Button.button
@@ -374,22 +403,22 @@ renderActionButton containerId buttonTitle iconClass buttonKind action isEnabled
         ]
 
 
-actionButtons : String -> List ( List ContainerState, Bool -> Html Msg )
-actionButtons containerId =
+actionButtons : DockerContainer -> List ( List ContainerState, Bool -> Html Msg )
+actionButtons container =
     [ ( [ Running, Paused, Exited ]
-      , renderActionButton containerId "Restart" "play-circle" Button.warning Restart
+      , renderActionButton container "Restart" "play-circle" Button.warning Restart
       )
     , ( [ Paused ]
-      , renderActionButton containerId "Unpause" "arrow-circle-right" Button.success Unpause
+      , renderActionButton container "Unpause" "arrow-circle-right" Button.success Unpause
       )
     , ( [ Running ]
-      , renderActionButton containerId "Pause" "pause-circle" Button.primary Pause
+      , renderActionButton container "Pause" "pause-circle" Button.primary Pause
       )
     , ( [ Created, Restarting, Running, Paused ]
-      , renderActionButton containerId "Stop" "stop-circle" Button.secondary Stop
+      , renderActionButton container "Stop" "stop-circle" Button.secondary Stop
       )
     , ( [ Exited, Dead ]
-      , renderActionButton containerId "Remove" "times-circle" Button.danger Remove
+      , renderActionButton container "Remove" "times-circle" Button.danger Remove
       )
     ]
 
@@ -411,7 +440,7 @@ viewContainerRow container =
 
         matchingActionButtons : List (Html Msg)
         matchingActionButtons =
-            actionButtons container.id
+            actionButtons container
                 |> List.map
                     (\( applicableStates, buttonFn ) ->
                         if List.member container.state applicableStates then
