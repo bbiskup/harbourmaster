@@ -59,6 +59,14 @@ body{
     padding-bottom: 5px;
 }
 
+.harbourmaster-toasty-list{
+    list-style-type: none;
+    padding-left: 2px;
+}
+.harbourmaster-toasty-list > li{
+    padding-bottom: 3px;
+}
+
 .breadcrumb{
     padding: 3px 3px;
     margin: 3px 0px;

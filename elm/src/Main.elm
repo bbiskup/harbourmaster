@@ -12,7 +12,7 @@ import Bootstrap.Utilities.Size exposing (h100)
 import Browser exposing (UrlRequest)
 import Browser.Navigation as Nav
 import Html exposing (..)
-import Html.Attributes exposing (class, href)
+import Html.Attributes exposing (class, href, style)
 import Json.Encode as Encode
 import Pages.Container as Container
 import Pages.Containers as Containers
@@ -96,7 +96,14 @@ init () url navKey =
 
 toastyConfig : Toasty.Config msg
 toastyConfig =
+    let
+        containerAttrs =
+            [ class "harbourmaster-toasty-list"
+            ]
+    in
     Toasty.config
+        |> Toasty.delay 5000
+        |> Toasty.containerAttrs containerAttrs
 
 
 loadCurrentPage : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -145,8 +152,8 @@ loadCurrentPage ( model, cmd ) =
     ( { model | page = page }, Cmd.batch [ cmd, newCmd ] )
 
 
-sideBar : Html Msg
-sideBar =
+sideBar : Model -> Html Msg
+sideBar model =
     let
         data =
             [ { link = Routes.infoPath
@@ -168,10 +175,15 @@ sideBar =
                 [ i [ class <| "harbourmaster-nav-link-icon fas fa-" ++ linkData.icon ] []
                 , a [ href linkData.link, class "harbourmaster-nav-link" ] [ text linkData.label ]
                 ]
+
+        renderToasts : Toasty.Stack Toasty.Defaults.Toast -> Html Msg
+        renderToasts toast =
+            div [] [ Toasty.view toastyConfig Toasty.Defaults.view ToastyMsg toast ]
     in
     div [ class "harbourmaster-sidebar", h100 ]
         [ b [] [ text appTitle ]
         , ul [ class "harbourmaster-nav-link-list" ] (List.map renderLink data)
+        , renderToasts model.toasties
         ]
 
 
@@ -247,10 +259,6 @@ view model =
         renderAppMessages =
             ul []
                 (List.map (\x -> li [] [ text x.message ]) model.appState.appMessages)
-
-        renderToasts : Toasty.Stack Toasty.Defaults.Toast -> Html Msg
-        renderToasts toast =
-            div [] [ Toasty.view toastyConfig Toasty.Defaults.view ToastyMsg toast ]
     in
     { title = appTitle
     , body =
@@ -258,9 +266,8 @@ view model =
             [ Grid.row [] [ Grid.col [] [ breadCrumbs ] ]
             , Grid.row [ Row.attrs [ h100 ] ]
                 [ Grid.col [ Col.xs2, Col.attrs [] ]
-                    [ renderToasts model.toasties
-                    , renderAppMessages
-                    , sideBar
+                    [ renderAppMessages
+                    , sideBar model
                     ]
                 , Grid.col [ Col.xs10 ] [ currentPage model ]
                 ]
