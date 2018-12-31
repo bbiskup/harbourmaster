@@ -88,6 +88,10 @@ httpErrorToStringSuite =
             (\_ ->
                 Expect.equal (Sut.httpErrorToString Http.Timeout) "Timeout"
             )
+        , test "Network error"
+            (\_ ->
+                Expect.equal (Sut.httpErrorToString Http.NetworkError) "Network error"
+            )
         , test "BadUrl"
             (\_ ->
                 Expect.equal (Sut.httpErrorToString <| Http.BadUrl "xxx") "Bad URL: xxx"

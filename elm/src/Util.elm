@@ -119,7 +119,7 @@ httpErrorToString error =
             "Timeout"
 
         NetworkError ->
-            "Networ error"
+            "Network error"
 
         BadBody body ->
             "Bad body: " ++ ellipsis 50 body
