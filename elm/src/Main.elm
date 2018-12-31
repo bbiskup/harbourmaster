@@ -22,7 +22,7 @@ import Pages.Info as Info
 import Routes exposing (Route, pathFor)
 import Toasty
 import Toasty.Defaults
-import Types exposing (AppState, UpdateAppState, updateAppState)
+import Types exposing (AppState, MessageSeverity(..), UpdateAppState, updateAppState)
 import Url exposing (Url)
 import Util exposing (lastElem)
 
@@ -308,6 +308,25 @@ notFoundView =
     div [] [ text "not found" ]
 
 
+toastFuncForSeverity : MessageSeverity -> (String -> String -> Toasty.Defaults.Toast)
+toastFuncForSeverity severity =
+    case severity of
+        Success ->
+            Toasty.Defaults.Success
+
+        Info ->
+            Toasty.Defaults.Success
+
+        Warning ->
+            Toasty.Defaults.Warning
+
+        Error ->
+            Toasty.Defaults.Error
+
+        Fatal ->
+            Toasty.Defaults.Error
+
+
 {-| Convert all pending app messages to Toasty notifications.
 App messages are removed after triggering a notification.
 -}
@@ -321,10 +340,13 @@ convertAppMessagesToToasties ( model, cmd ) =
 
                 newAppState =
                     { appMessages = remainingAppMessages }
+
+                toastFunc =
+                    toastFuncForSeverity firstAppMessage.severity
             in
             Toasty.addToast toastyConfig
                 ToastyMsg
-                (Toasty.Defaults.Success "convertAppMessagesToToasties" firstAppMessage.message)
+                (toastFunc "convertAppMessagesToToasties" firstAppMessage.message)
                 ( { model | appState = newAppState }, cmd )
 
         [] ->
