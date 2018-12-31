@@ -308,104 +308,121 @@ notFoundView =
     div [] [ text "not found" ]
 
 
+convertAppMessagesToToasties : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+convertAppMessagesToToasties ( model, cmd ) =
+    case model.appState.appMessages of
+        firstAppMessage :: remainingAppMessages ->
+            let
+                appState =
+                    model.appState
+
+                newAppState =
+                    { appMessages = remainingAppMessages }
+            in
+            Toasty.addToast toastyConfig
+                ToastyMsg
+                (Toasty.Defaults.Success "convertAppMessagesToToasties" firstAppMessage.message)
+                ( { model | appState = newAppState }, cmd )
+
+        [] ->
+            ( model, cmd )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ appState } as model) =
     let
         updateCurrentAppState : UpdateAppState -> AppState
         updateCurrentAppState =
             updateAppState appState
+
+        updated =
+            case ( msg, model.page ) of
+                ( OnUrlRequest urlRequest, _ ) ->
+                    case urlRequest of
+                        Browser.Internal url ->
+                            ( model, Nav.pushUrl model.navKey (Url.toString url) )
+
+                        Browser.External url ->
+                            ( model, Nav.load url )
+
+                ( OnUrlChange url, _ ) ->
+                    let
+                        newRoute =
+                            Routes.parseUrl url
+                    in
+                    ( { model | route = newRoute }, Cmd.none )
+                        |> loadCurrentPage
+
+                ( InfoMsg subMsg, PageInfo pageModel ) ->
+                    let
+                        ( newPageModel, newCmd, appStateUpdate ) =
+                            Info.update subMsg pageModel
+                    in
+                    ( { model
+                        | page = PageInfo newPageModel
+                        , appState = updateCurrentAppState appStateUpdate
+                      }
+                    , Cmd.map InfoMsg newCmd
+                    )
+
+                ( InfoMsg subMsg, _ ) ->
+                    ( model, Cmd.none )
+
+                ( ContainersMsg subMsg, PageContainers pageModel ) ->
+                    let
+                        ( newPageModel, newCmd ) =
+                            Containers.update subMsg pageModel
+                    in
+                    ( { model | page = PageContainers newPageModel }
+                    , Cmd.map ContainersMsg newCmd
+                    )
+
+                ( ContainersMsg subMsg, _ ) ->
+                    ( model, Cmd.none )
+
+                ( ContainerMsg subMsg, PageContainer pageModel ) ->
+                    let
+                        ( newPageModel, newCmd ) =
+                            Container.update subMsg pageModel
+                    in
+                    ( { model | page = PageContainer newPageModel }
+                    , Cmd.map ContainerMsg newCmd
+                    )
+
+                ( ContainerMsg subMsg, _ ) ->
+                    ( model, Cmd.none )
+
+                ( ImagesMsg subMsg, PageImages pageModel ) ->
+                    let
+                        ( newPageModel, newCmd ) =
+                            Images.update subMsg pageModel
+                    in
+                    ( { model | page = PageImages newPageModel }
+                    , Cmd.map ImagesMsg newCmd
+                    )
+
+                ( ImagesMsg subMsg, _ ) ->
+                    ( model, Cmd.none )
+
+                ( ImageMsg subMsg, PageImage pageModel ) ->
+                    let
+                        ( newPageModel, newCmd ) =
+                            Image.update subMsg pageModel
+                    in
+                    ( { model | page = PageImage newPageModel }
+                    , Cmd.map ImageMsg newCmd
+                    )
+
+                ( ImageMsg subMsg, _ ) ->
+                    ( model, Cmd.none )
+
+                ( NavbarMsg state, _ ) ->
+                    ( { model | navbarState = state }, Cmd.none )
+
+                ( ToastyMsg subMsg, _ ) ->
+                    Toasty.update toastyConfig ToastyMsg subMsg model
     in
-    case ( msg, model.page ) of
-        ( OnUrlRequest urlRequest, _ ) ->
-            case urlRequest of
-                Browser.Internal url ->
-                    ( model, Nav.pushUrl model.navKey (Url.toString url) )
-
-                Browser.External url ->
-                    ( model, Nav.load url )
-
-        ( OnUrlChange url, _ ) ->
-            let
-                newRoute =
-                    Routes.parseUrl url
-            in
-            ( { model | route = newRoute }, Cmd.none )
-                |> loadCurrentPage
-
-        ( InfoMsg subMsg, PageInfo pageModel ) ->
-            let
-                ( newPageModel, newCmd, appStateUpdate ) =
-                    Info.update subMsg pageModel
-            in
-            ( { model
-                | page = PageInfo newPageModel
-                , appState = updateCurrentAppState appStateUpdate
-              }
-            , Cmd.map InfoMsg newCmd
-            )
-
-        ( InfoMsg subMsg, _ ) ->
-            ( model, Cmd.none )
-
-        ( ContainersMsg subMsg, PageContainers pageModel ) ->
-            let
-                ( newPageModel, newCmd ) =
-                    Containers.update subMsg pageModel
-            in
-            ( { model | page = PageContainers newPageModel }
-            , Cmd.map ContainersMsg newCmd
-            )
-
-        ( ContainersMsg subMsg, _ ) ->
-            ( model, Cmd.none )
-
-        ( ContainerMsg subMsg, PageContainer pageModel ) ->
-            let
-                ( newPageModel, newCmd ) =
-                    Container.update subMsg pageModel
-            in
-            ( { model | page = PageContainer newPageModel }
-            , Cmd.map ContainerMsg newCmd
-            )
-
-        ( ContainerMsg subMsg, _ ) ->
-            ( model, Cmd.none )
-
-        ( ImagesMsg subMsg, PageImages pageModel ) ->
-            let
-                ( newPageModel, newCmd ) =
-                    Images.update subMsg pageModel
-            in
-            ( { model | page = PageImages newPageModel }
-            , Cmd.map ImagesMsg newCmd
-            )
-                |> Toasty.addToast toastyConfig
-                    ToastyMsg
-                    (Toasty.Defaults.Success "Toasty header" "Toasty for images page")
-                |> Toasty.addToast toastyConfig
-                    ToastyMsg
-                    (Toasty.Defaults.Warning "Toasty header 2" "Another Toasty")
-
-        ( ImagesMsg subMsg, _ ) ->
-            ( model, Cmd.none )
-
-        ( ImageMsg subMsg, PageImage pageModel ) ->
-            let
-                ( newPageModel, newCmd ) =
-                    Image.update subMsg pageModel
-            in
-            ( { model | page = PageImage newPageModel }
-            , Cmd.map ImageMsg newCmd
-            )
-
-        ( ImageMsg subMsg, _ ) ->
-            ( model, Cmd.none )
-
-        ( NavbarMsg state, _ ) ->
-            ( { model | navbarState = state }, Cmd.none )
-
-        ( ToastyMsg subMsg, _ ) ->
-            Toasty.update toastyConfig ToastyMsg subMsg model
+    convertAppMessagesToToasties updated
 
 
 subscriptions : Model -> Sub Msg
