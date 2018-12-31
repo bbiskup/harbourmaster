@@ -12,7 +12,7 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Bootstrap.Utilities.Spacing as Spacing
 import Html exposing (..)
-import Html.Attributes exposing (class, href, title)
+import Html.Attributes exposing (class, href, style, title)
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -424,18 +424,28 @@ view model =
                 ]
                 (containerStateToString containerState)
 
-        filterInput =
-            Input.text
-                [ Input.attrs [ title "Filter by container name" ]
-                , Input.placeholder "Search term"
-                , Input.onInput SetSearchTerm
+        filterBox =
+            div
+                [ style "display" "inline-flex"
+                ]
+                [ Input.text
+                    [ Input.attrs [ title "Filter by container name" ]
+                    , Input.placeholder "Search term"
+                    , Input.onInput SetSearchTerm
+                    ]
+                , Button.button [ Button.small ]
+                    [ i
+                        [ class "fas fa-times"
+                        ]
+                        []
+                    ]
                 ]
     in
     Grid.row []
         [ Grid.col [ Col.xs11 ]
             [ h1 [] [ text "Containers" ]
             , Form.formInline [ class "harbourmaster-table-form" ]
-                (List.map containerStateCheckbox allContainerStates ++ [ filterInput ])
+                (List.map containerStateCheckbox allContainerStates ++ [ filterBox ])
             , content
             ]
         ]
