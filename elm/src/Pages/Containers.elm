@@ -19,7 +19,13 @@ import Json.Decode.Pipeline exposing (..)
 import Json.Encode as Encode
 import Routes exposing (containerPath, imagePath)
 import String.Extra exposing (ellipsis)
-import Types exposing (ContainerState(..), UpdateAppState(..), containerStateToString, httpErrorToAppMessage)
+import Types
+    exposing
+        ( ContainerState(..)
+        , UpdateAppState(..)
+        , containerStateToString
+        , httpErrorToAppMessage
+        )
 import Util exposing (createEngineApiUrl)
 
 
