@@ -19,6 +19,7 @@ import Pages.Containers as Containers
 import Pages.Image as Image
 import Pages.Images as Images
 import Pages.Info as Info
+import Pages.Login as Login
 import Routes exposing (Route, pathFor)
 import Toasty
 import Toasty.Defaults
@@ -50,7 +51,8 @@ type alias Model =
 
 
 type Page
-    = PageInfo Info.Model
+    = PageLogin Login.Model
+    | PageInfo Info.Model
     | PageContainers Containers.Model
     | PageContainer Container.Model
     | PageImages Images.Model
@@ -73,6 +75,7 @@ type alias BreadCrumbs =
 type Msg
     = OnUrlChange Url
     | OnUrlRequest UrlRequest
+    | LoginMsg Login.Msg
     | InfoMsg Info.Msg
     | ContainersMsg Containers.Msg
     | ContainerMsg Container.Msg
@@ -88,8 +91,12 @@ init () url navKey =
         ( navbarState, navbarCmd ) =
             Navbar.initialState NavbarMsg
 
+        model : Model
         model =
-            { appState = { appMessages = [] }
+            { appState =
+                { appMessages = []
+                , auth = Nothing
+                }
             , navKey = navKey
             , route = Routes.parseUrl url
             , page = PageNone
@@ -117,6 +124,13 @@ loadCurrentPage ( model, cmd ) =
     let
         ( page, newCmd ) =
             case model.route of
+                Routes.LoginRoute ->
+                    let
+                        ( pageModel, pageCmd ) =
+                            Login.init
+                    in
+                    ( PageLogin pageModel, Cmd.map LoginMsg pageCmd )
+
                 Routes.InfoRoute ->
                     let
                         ( pageModel, pageCmd ) =
@@ -162,7 +176,11 @@ sideBar : Model -> Html Msg
 sideBar model =
     let
         data =
-            [ { link = Routes.infoPath
+            [ { link = Routes.loginPath
+              , label = "Login"
+              , icon = "sign-in-alt"
+              }
+            , { link = Routes.infoPath
               , label = "Info"
               , icon = "info-circle"
               }
@@ -196,6 +214,9 @@ sideBar model =
 breadCrumbList : Page -> BreadCrumbs
 breadCrumbList page =
     let
+        loginTitle =
+            "Login"
+
         imagesTitle =
             "Images"
 
@@ -209,6 +230,11 @@ breadCrumbList page =
             "Container"
     in
     case page of
+        PageLogin _ ->
+            { crumbs = []
+            , lastTitle = loginTitle
+            }
+
         PageInfo _ ->
             { crumbs = []
             , lastTitle = "Info"
@@ -248,10 +274,15 @@ renderBreadCrumbs breadCrumbs =
     let
         createBreadCrumb : BreadCrumbSpec -> Breadcrumb.Item msg
         createBreadCrumb breadCrumbSpec =
-            Breadcrumb.item [] [ a [ href <| pathFor breadCrumbSpec.route ] [ text <| breadCrumbSpec.title ] ]
+            Breadcrumb.item []
+                [ a [ href <| pathFor breadCrumbSpec.route ]
+                    [ text <| breadCrumbSpec.title ]
+                ]
     in
     Breadcrumb.container
-        (List.map createBreadCrumb breadCrumbs.crumbs ++ [ Breadcrumb.item [] [ text <| breadCrumbs.lastTitle ] ])
+        (List.map createBreadCrumb breadCrumbs.crumbs
+            ++ [ Breadcrumb.item [] [ text <| breadCrumbs.lastTitle ] ]
+        )
 
 
 view : Model -> Browser.Document Msg
@@ -285,6 +316,10 @@ view model =
 currentPage : Model -> Html Msg
 currentPage model =
     case model.page of
+        PageLogin pageModel ->
+            Login.view pageModel
+                |> Html.map LoginMsg
+
         PageInfo pageModel ->
             Info.view pageModel
                 |> Html.map InfoMsg
@@ -358,7 +393,7 @@ convertAppMessagesToToasties ( model, cmd ) =
                     model.appState
 
                 newAppState =
-                    { appMessages = remainingAppMessages }
+                    { appState | appMessages = remainingAppMessages }
 
                 ( toastTitle, toastDelay, toastFunc ) =
                     toastSpecForSeverity firstAppMessage.severity
@@ -396,6 +431,21 @@ update msg ({ appState } as model) =
                     in
                     ( { model | route = newRoute }, Cmd.none )
                         |> loadCurrentPage
+
+                ( LoginMsg subMsg, PageLogin pageModel ) ->
+                    let
+                        ( newPageModel, newCmd, appStateUpdate ) =
+                            Login.update subMsg pageModel
+                    in
+                    ( { model
+                        | page = PageLogin newPageModel
+                        , appState = updateCurrentAppState appStateUpdate
+                      }
+                    , Cmd.map LoginMsg newCmd
+                    )
+
+                ( LoginMsg subMsg, _ ) ->
+                    ( model, Cmd.none )
 
                 ( InfoMsg subMsg, PageInfo pageModel ) ->
                     let
@@ -484,6 +534,9 @@ update msg ({ appState } as model) =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.page of
+        PageLogin pageModel ->
+            Sub.map LoginMsg (Login.subscriptions pageModel)
+
         PageInfo pageModel ->
             Sub.map InfoMsg (Info.subscriptions pageModel)
 

@@ -2,6 +2,7 @@ module Pages.Info exposing (Model, Msg(..), init, initialCmd, subscriptions, upd
 
 {- Visualization of 'docker info' -}
 
+import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Dict exposing (Dict)
 import Html exposing (Html, b, div, h1, h5, li, p, text, ul)
@@ -15,7 +16,6 @@ import Util exposing (bytesToMiB, createEngineApiUrl, viewSection)
 
 type alias Model =
     { dockerInfo : Maybe DockerInfo
-    , serverErrMsg : String
     }
 
 
@@ -94,7 +94,6 @@ initialCmd =
 init : ( Model, Cmd Msg )
 init =
     ( { dockerInfo = Nothing
-      , serverErrMsg = ""
       }
     , initialCmd
     )
@@ -110,7 +109,7 @@ update msg model =
             )
 
         GotDockerInfo (Err error) ->
-            ( { model | serverErrMsg = "Server error" }
+            ( model
             , Cmd.none
             , AddAppMessage <| httpErrorToAppMessage error
             )

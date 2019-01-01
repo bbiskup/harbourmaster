@@ -18,11 +18,13 @@ updateAppStateSuite =
                 let
                     appState : Sut.AppState
                     appState =
-                        { appMessages = [] }
+                        { appMessages = []
+                        , auth = Nothing
+                        }
                 in
                 Expect.equal
                     (Sut.updateAppState appState (Sut.AddAppMessage message))
-                    { appMessages = [ message ] }
+                    { appState | appMessages = [ message ] }
             )
         , test "Second app message gets prepended to existing messages"
             (\_ ->
@@ -32,10 +34,10 @@ updateAppStateSuite =
 
                     appState : Sut.AppState
                     appState =
-                        { appMessages = [ message_1 ] }
+                        { appMessages = [ message_1 ], auth = Nothing }
                 in
                 Expect.equal
                     (Sut.updateAppState appState (Sut.AddAppMessage message))
-                    { appMessages = [ message, message_1 ] }
+                    { appState | appMessages = [ message, message_1 ] }
             )
         ]

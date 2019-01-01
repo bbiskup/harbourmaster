@@ -1,4 +1,14 @@
-module Routes exposing (Route(..), containerPath, containersPath, imagePath, imagesPath, infoPath, parseUrl, pathFor)
+module Routes exposing
+    ( Route(..)
+    , containerPath
+    , containersPath
+    , imagePath
+    , imagesPath
+    , infoPath
+    , loginPath
+    , parseUrl
+    , pathFor
+    )
 
 import Url exposing (Url)
 import Url.Parser exposing (..)
@@ -10,7 +20,8 @@ appPrefix =
 
 
 type Route
-    = InfoRoute
+    = LoginRoute
+    | InfoRoute
     | ContainersRoute
     | ContainerRoute String
       --    | ContainerRoute String
@@ -23,6 +34,7 @@ matchers : Parser (Route -> a) a
 matchers =
     oneOf
         [ map InfoRoute (s appPrefix </> s "info")
+        , map LoginRoute (s appPrefix </> s "login")
         , map ContainerRoute (s appPrefix </> s "containers" </> string)
         , map ContainersRoute (s appPrefix </> s "containers")
         , map ImageRoute (s appPrefix </> s "images" </> string)
@@ -45,6 +57,9 @@ pathFor route =
     let
         urlSuffix =
             case route of
+                LoginRoute ->
+                    "/login"
+
                 InfoRoute ->
                     "/info"
 
@@ -64,6 +79,11 @@ pathFor route =
                     "/"
     in
     "/" ++ appPrefix ++ urlSuffix
+
+
+loginPath : String
+loginPath =
+    pathFor LoginRoute
 
 
 infoPath : String

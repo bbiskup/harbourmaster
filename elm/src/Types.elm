@@ -1,6 +1,7 @@
 module Types exposing
     ( AppMessage
     , AppState
+    , Auth
     , ContainerState(..)
     , MessageSeverity(..)
     , UpdateAppState(..)
@@ -50,8 +51,16 @@ type alias AppMessage =
     }
 
 
+{-| Information about logged in user
+-}
+type alias Auth =
+    { sessionID : String
+    }
+
+
 type alias AppState =
     { appMessages : List AppMessage
+    , auth : Maybe Auth
     }
 
 
