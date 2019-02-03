@@ -11,7 +11,7 @@ build-backend-python:
 build-backend-elixir:
 	(cd harbourmaster_umbrella && mix compile)
 
-build-backend: build-backend-python build-backend-elixir
+build-backend: build-backend-python # build-backend-elixir
 
 build-frontend:
 	./docker-cmd.sh "(cd elm && elm make src/Main.elm --output ../static/elm.js)"
@@ -22,10 +22,15 @@ run-server:
 	./docker-cmd.sh "pipenv run python3 python/harbourmaster.py 0.0.0.0"
 	
 
-test: test-frontend
+test: test-frontend # test-backend
 
 test-frontend:
 	./docker-cmd.sh "cd elm && elm-test"
 
 test-frontend-watch:
 	./docker-cmd.sh "cd elm && elm-test --watch"
+
+test-backend: test-backend-elixir
+
+test-backend-elixir:
+	(cd harbourmaster_umbrella && mix test)
