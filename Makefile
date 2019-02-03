@@ -3,10 +3,15 @@ build-debug: build-backend build-frontend-debug
 build-frontend-debug:
 	./docker-cmd.sh "(cd elm && elm make src/Main.elm --output ../static/elm.js --debug)"
 
-build-backend:
+build-backend-python:
 	docker-compose build && \
 	docker-compose up -d 
 	./docker-cmd.sh "pipenv install --dev"
+
+build-backend-elixir:
+	(cd harbourmaster_umbrella && mix compile)
+
+build-backend: build-backend-python build-backend-elixir
 
 build-frontend:
 	./docker-cmd.sh "(cd elm && elm make src/Main.elm --output ../static/elm.js)"
