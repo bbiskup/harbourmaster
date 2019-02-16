@@ -13,5 +13,5 @@ else
   args="$@"
 fi
 
-docker-compose exec $EXEC_OPTS harbourmaster_dev bash -c "$args"
+docker exec -ti $EXEC_OPTS harbourmaster_dev bash -c "$args"
 
