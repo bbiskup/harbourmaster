@@ -1,0 +1,19 @@
+FROM alpine:edge
+
+MAINTAINER Bernhard Biskup <bbiskup@gmx.de>
+
+ENV NODE_DIR=node-v6.2.0-linux-x64
+ENV NODE_ARCHIVE=$NODE_DIR.tar.xz
+ENV PATH=/opt/node/bin:$PATH
+
+RUN apk add bash elixir curl wrk chromium curl htop nodejs
+RUN apk add npm
+
+RUN mkdir -p /usr/lib/node_modules/elm/unpacked_bin
+RUN npm install -g elm --unsafe-perm=true --allow-root
+RUN npm install -g elm-test --unsafe-perm=true --allow-root
+
+WORKDIR /code
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
