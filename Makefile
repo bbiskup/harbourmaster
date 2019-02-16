@@ -34,3 +34,10 @@ test-backend: test-backend-elixir
 
 test-backend-elixir:
 	(cd harbourmaster_umbrella && mix test)
+
+prepare: prepare-backend
+
+prepare-backend:
+	(cd harbourmaster_umbrella && \
+	 mix deps.get && \
+	 mix archive.install --force hex phx_new 1.4.0)
