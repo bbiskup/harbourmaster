@@ -2,7 +2,7 @@ FROM elixir:1.8.1-alpine
 
 MAINTAINER Bernhard Biskup <bbiskup@gmx.de>
 
-RUN apk add bash curl wrk chromium curl htop nodejs npm openssh wget libc6-compat
+RUN apk add bash curl wrk chromium curl htop nodejs npm openssh wget libc6-compat inotify-tools nmap
 
 RUN apk add --no-cache --update ca-certificates
 RUN update-ca-certificates 2>/dev/null
