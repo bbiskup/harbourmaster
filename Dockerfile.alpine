@@ -2,15 +2,17 @@ FROM elixir:1.8.1-alpine
 
 MAINTAINER Bernhard Biskup <bbiskup@gmx.de>
 
-RUN apk add bash curl wrk chromium curl htop nodejs npm openssh wget 
+RUN apk add bash curl wrk chromium curl htop nodejs npm openssh wget libc6-compat
 
 RUN apk add --no-cache --update ca-certificates
 RUN update-ca-certificates 2>/dev/null
 
 RUN npm install -g elm --unsafe-perm=true --allow-root
 RUN npm install -g elm-test --unsafe-perm=true --allow-root
+RUN npm install -g elm-format --unsafe-perm=true --allow-root
 
 WORKDIR /code
 ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
 ENV LANG C.UTF-8
 
