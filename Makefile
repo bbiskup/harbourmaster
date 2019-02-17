@@ -9,7 +9,7 @@ build-backend-elixir:
 build-backend:  build-backend-elixir
 
 build-frontend:
-	./docker-cmd.sh "(cd elm && elm make src/Main.elm --output ../static/elm.js)"
+	./docker-cmd.sh "(cd elm && elm make src/Main.elm --output ../harbourmaster_umbrella/apps/web/priv/static/js/elm.js)"
 
 run-server:
 	# NOTE: Only listen on all interfaces (0.0.0.0) when running the server in
