@@ -7,6 +7,7 @@ dist: trusty
 before_script:
   - echo $TRAVIS_BUILD_DIR
   - docker --version
+  - make start-container
 
 script:
   - make build-debug
