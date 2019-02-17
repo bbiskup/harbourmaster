@@ -44,4 +44,4 @@ start-container:
 	./run_dev_container.sh
 
 start-server:
-	./docker-cmd.sh "mix phx.server"
+	./docker-cmd.sh "(cd harbourmaster_umbrella && mix phx.server)"
