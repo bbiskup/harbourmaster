@@ -9,6 +9,7 @@ before_script:
   - docker --version
   - make build-docker
   - make start-container
+  - make prepare-backend
 
 script:
   - make build-debug
