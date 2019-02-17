@@ -4,8 +4,7 @@ build-frontend-debug:
 	./docker-cmd.sh "(cd elm && elm make src/Main.elm --output ../static/elm.js --debug)"
 
 build-backend-elixir:
-	./run_dev_container.sh && \
-	./docker-cmd.sh "(cd harbourmaster_umbrella && mix compile)"
+	./docker-cmd.sh "(cd harbourmaster_umbrella && mix deps.get && mix compile)"
 
 build-backend:  build-backend-elixir
 
@@ -40,3 +39,9 @@ prepare-backend:
 
 build-docker:
 	docker build -f Dockerfile.alpine -t harbourmaster_dev .
+
+start-container:
+	./run_dev_container.sh
+
+start-server:
+	./docker-cmd.sh "mix phx.server"
