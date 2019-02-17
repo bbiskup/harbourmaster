@@ -17,7 +17,10 @@ defmodule HarbourmasterUmbrella.MixProject do
   defp deps do
     [
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 0.4", only: [:dev]}
+      {:dialyxir, "~> 0.4", only: [:dev]},
+
+      # Unix domain sockets
+      {:socket_tcp_bridge, "~> 0.1.0"}
     ]
   end
 end

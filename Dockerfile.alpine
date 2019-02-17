@@ -7,14 +7,17 @@ RUN apk add \
     chromium \
     curl \
     curl \
+    gcc \
     git \
     htop \
     inotify-tools \
     libc6-compat \
+    musl-dev \
     nmap \
     nodejs \
     npm \
     openssh \
+    socat \
     wget \
     wrk 
 
