@@ -18,6 +18,7 @@ defmodule Web.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
+    get("/app", PageController, :app)
   end
 
   # Other scopes may use custom stacks.
