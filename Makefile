@@ -33,9 +33,11 @@ test-backend-elixir:
 prepare: prepare-backend
 
 prepare-backend:
-	(cd harbourmaster_umbrella && \
+	./docker-cmd.sh "(cd harbourmaster_umbrella && \
+	 mix local.hex --force && \
 	 mix deps.get && \
-	 mix archive.install --force hex phx_new 1.4.0)
+	 mix local.rebar && \
+	 mix archive.install --force hex phx_new 1.4.0)"
 
 build-docker:
 	docker build -f Dockerfile.alpine -t harbourmaster_dev .
@@ -45,3 +47,14 @@ start-container:
 
 start-server:
 	./docker-cmd.sh "(cd harbourmaster_umbrella && mix phx.server)"
+
+backend-clean:
+	./docker-cmd.sh "harbourmaster_umbrella/_build"
+
+
+stop-container:
+	docker rm -f harbourmaster_dev 2>/dev/null || true
+
+total-clean: stop-container backend-clean frontend-clean
+
+clean: backend-clean frontend-clean
