@@ -1,0 +1,7 @@
+<div id="app">
+    <script src="/static/js/elm.js"></script>
+    <script>
+        var app = Elm.Main.init({
+                node: document.getElementById('app')});
+    </script>
+</div>

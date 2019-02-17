@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- from https://raw.githubusercontent.com/pablen/toasty/master/src/Toasty/Defaults.css -->
+    <link rel="stylesheet" href="/static/css/toasty-default.css" >
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" >
+
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css" >
+
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
+  </head>
+
+  <body>
+    <div class="container">
+
+      <main role="main">
+        <%= render @view_module, @view_template, assigns %>
+      </main>
+
+    </div> <!-- /container -->
+    <script src="<%= static_path(@conn, "/static/js/app.js") %>"></script>
+
+    <!-- For Toasty -->
+    <script src="/static/js/jquery-3.2.1.slim.min.js"></script>
+  </body>
+</html>
