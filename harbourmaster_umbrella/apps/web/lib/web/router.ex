@@ -24,6 +24,6 @@ defmodule Web.Router do
   scope "/api", Web do
     pipe_through(:api)
 
-    get("/api/docker-engine", DockerController, :engine)
+    get("/docker-engine/", DockerEngineController, :index)
   end
 end
